@@ -1,0 +1,68 @@
+# Node modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Runtime data
+
+*.pid
+*.pid.lock
+
+# Dependency directories
+
+bower_components/
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Build output
+dist/
+build/
+.tmp/
+.out/
+.cache/
+
+# IDE-specific files
+.idea/
+.vscode/
+*.suo
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Optional npm cache directory
+.npm
+
+# Testing
+coverage/
+*.lcov
+
+# Parcel-bundler cache
+.cache/
+
+# TypeScript
+*.tsbuildinfo
+
+
+# Debugging
+debug/
+.v8/
+
+# Docker
+docker-compose.override.yml
+.dockerignore
+
+# Temporary files
+*.swp
+*.bak
+*.tmp
+*.old

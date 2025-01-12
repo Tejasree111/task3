@@ -1,0 +1,44 @@
+<nav class="navbar bg-white border-bottom p-3">
+    <div class="container-fluid d-flex justify-content-between align-items-center">
+      <!-- Brand Name -->
+      <a class="navbar-brand fw-bold" href="#">Intern Task 3</a>
+  
+      <!-- Profile Section -->
+      <div class="dropdown">
+        <button 
+          class="btn d-flex align-items-center" 
+          (click)="toggleDropdown()">
+          <!-- Profile Image (left side) -->
+          <img 
+            [src]="userProfile.profileImage" 
+            alt="Profile" 
+            class="rounded-circle me-2" 
+            width="40" 
+            height="40"
+            style="object-fit: cover;">
+          
+          <!-- Profile Details (right side) -->
+          <div class="text-start">
+            <div class="fw-medium">{{ userProfile.firstName }} {{ userProfile.lastName }}</div>
+            <div class="text-muted small">{{ userProfile.email }}</div>
+          </div>
+        </button>
+  
+        <!-- Dropdown Menu -->
+        <div class="dropdown-menu shadow" [class.show]="isDropdownOpen">
+          <div class="dropdown-header">
+            <!-- Display Username -->
+            <div class="fw-bold">Username: {{ userProfile.username }}</div>
+          </div>
+          <button class="dropdown-item" (click)="updateProfilePicture()">
+            <i class="bi bi-camera me-2"></i> Update Profile Picture
+          </button>
+          <div class="dropdown-divider"></div>
+          <button class="dropdown-item" (click)="logout()">
+            <i class="bi bi-box-arrow-right me-2"></i> Logout
+          </button>
+        </div>
+      </div>
+    </div>
+  </nav>
+  

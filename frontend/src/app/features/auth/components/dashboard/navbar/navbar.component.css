@@ -1,0 +1,26 @@
+.navbar {
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  .dropdown-menu {
+    position: absolute;
+    right: 0;
+    top: 100%;
+    margin-top: 8px; 
+    border-radius: 8px; 
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    display: none;
+  }
+  
+  .dropdown-menu.show {
+    display: block;
+  }
+  
+  .dropdown-menu .dropdown-item {
+    padding: 8px 16px; 
+  }
+  
+  .dropdown-menu .dropdown-item:hover {
+    background-color: #f8f9fa;
+  }
+  

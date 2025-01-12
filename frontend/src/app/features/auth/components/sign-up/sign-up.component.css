@@ -1,0 +1,46 @@
+.btn-purple {
+    background-color: #6f42c1;
+    color: white;
+    border: none;
+  }
+  
+  .btn-purple:hover {
+    background-color: #5a3596;
+  }
+  
+  .signup-container {
+    background-color: #f8f9fa;
+  }
+  
+  h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  h4 {
+    margin-bottom: 1.5rem;
+  }
+  
+  img {
+    object-fit: cover;
+  }
+  
+  .text-danger {
+    font-size: 0.875rem;
+    margin-top: 0.25rem;
+  }
+  .sign-up-image{
+    width: 650px;
+    height: 650px;
+    border-top-left-radius: 100px;
+    border-bottom-left-radius: 100px;
+  }
+  .button{
+    border-color: black;
+    width: 100px;
+    height: 100px;
+  }
+  .para{
+    color: #4f1ea8;
+  }
+  
