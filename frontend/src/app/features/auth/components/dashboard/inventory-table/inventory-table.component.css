@@ -1,0 +1,131 @@
+.inventory-table-container {
+    width: 100%;
+    padding: 0px;
+  }
+  .inventory{
+    border-radius: 15px;
+    margin-top: 20px;
+  }
+  
+  .header {
+    margin-bottom: 20px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .action-buttons button {
+    margin-left: 10px;
+  }
+  .table-buttons{
+    margin-left: 0px;
+    padding: 0px;
+  }
+  
+  .btn-purple {
+    background-color: rgb(148, 31, 226);
+    color: white;
+  }
+  
+  .btn-outline-dark {
+    background-color: white;
+    color: black;
+    border-color: black;
+    border-radius: 0.25rem;
+  }
+  
+  .btn-outline-dark:hover {
+    background-color: rgb(148, 31, 226);
+    color: white;
+  }
+  
+  .btn-group .btn {
+    margin-right: 5px;
+  }
+  
+  .search-filter input {
+    width: 200px;
+    margin-right: 10px;
+  }
+  
+  .table {
+    width: 100%;
+    margin-top: 20px;
+  }
+  
+  .table th,
+  .table td {
+    text-align: center;
+    vertical-align: middle;
+  }
+  
+  .table th {
+    position: relative;
+  }
+  
+  .table th .bi-sort {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+  }
+  
+  .table th .bi-question-circle {
+    position: absolute;
+    top: 50%;
+    right: 10px;
+    transform: translateY(-50%);
+  }
+  
+  .table td button {
+    margin: 0 5px;
+  }
+  
+  .table td .fa {
+    margin-right: 5px;
+  }
+ .inventory {
+  border: 1px solid black; /* Black border around the inventory */
+  padding: 20px; /* Optional, adds padding inside the div */
+  display: flex; /* This will display the content inside the inventory div side by side */
+  gap: 20px; /* Optional, adds space between inventory and files upload components */
+}
+
+
+
+.files-upload-container {
+  width: 300px; /* Adjust the width of the files-upload component */
+}
+.active-status {
+    background-color: #28a745; /* Green */
+    color: white;
+  }
+  
+  .inactive-status {
+    background-color: #dc3545; /* Red */
+    color: white;
+  }
+/* Reduce modal width */
+.custom-modal-width {
+  max-width: 500px; /* Adjust width as needed */
+  width: 90%; /* Make it responsive */
+}
+
+.modal-dialog-centered {
+  margin-top: 10vh; /* Add some top spacing */
+}
+
+/* Blur background */
+.modal-backdrop {
+  backdrop-filter: blur(5px);
+}
+.active {
+    background-color: rgba(168, 238, 184, 0.6);  /* Light green with opacity */
+    color: #073309;  /* Dark green text color */
+    width: 100px;
+    border: none;
+    padding-left: 5px;
+    padding-right: 5px;
+    border-radius: 10px;
+    text-align: center;  /* Optional: Centers the text inside the button */
+}

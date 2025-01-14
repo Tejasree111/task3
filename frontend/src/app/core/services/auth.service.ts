@@ -69,6 +69,7 @@ getUserProfile(): Observable<any> {
     }
     return null;
   }
+
   // Get user info from the decoded token
   getUserInfoFromToken(): any {
     const decodedToken = this.getDecodedToken();

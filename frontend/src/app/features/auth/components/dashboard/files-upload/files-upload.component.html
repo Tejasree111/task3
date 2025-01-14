@@ -1,0 +1,20 @@
+<!-- src/app/features/auth/components/dashboard/files-upload/files-upload.component.html -->
+<div class="files-upload-container">
+    <!-- Title -->
+    <h5>Files Uploaded</h5>
+    
+    <!-- Buttons Section -->
+    <div class="action-buttons">
+      <button class="btn btn-white" (click)="downloadAll()">Download All</button>
+      <button class="btn" (click)="uploadFiles()">Upload</button>
+    </div>
+    
+    <!-- File List Section -->
+    <div class="file-list">
+      <div *ngFor="let file of uploadedFiles">
+        <input type="checkbox" id="{{ file.name }}" />
+        <label for="{{ file.name }}">{{ file.name }}</label>
+      </div>
+    </div>
+  </div>
+  

@@ -41,11 +41,11 @@ const login = async (req, res) => {
 
 const getProfile = async (req, res) => {
   try {
-      const token = req.headers.authorization?.split(' ')[1]; // Assuming JWT is sent as Bearer token
-      if (!token) return res.status(401).send('Unauthorized');
+      //const token = req.headers.authorization?.split(' ')[1]; // Assuming JWT is sent as Bearer token
+      //if (!token) return res.status(401).send('Unauthorized');
 
-      const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await authQueries.getUserById(decoded.id); // Assuming you store user ID in JWT payload
+      //const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await authQueries.getUserById(req.user.id); // Assuming you store user ID in JWT payload
 
       if (!user) return res.status(404).send('User not found');
 

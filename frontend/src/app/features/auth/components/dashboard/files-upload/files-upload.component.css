@@ -1,0 +1,36 @@
+/* src/app/features/auth/components/dashboard/files-upload/files-upload.component.css */
+.files-upload-container {
+  margin-top: 18px;
+    padding: 20px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  h3 {
+    font-size: 1.5rem;
+    margin-bottom: 15px;
+  }
+  
+  .action-buttons {
+    margin-bottom: 20px;
+  }
+  
+  .action-buttons button {
+    margin-right: 10px;
+    font-weight: bold;
+  }
+  
+  .files-upload-container .file-list {
+    margin-top: 15px;
+  }
+  
+  .files-upload-container .file-list input {
+    margin-right: 10px;
+  }
+  
+  .btn{
+    color: white;
+    background-color: rgb(153, 69, 231);
+  }
+  
