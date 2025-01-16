@@ -34,7 +34,7 @@ import { FilesUploadComponent } from './features/auth/components/dashboard/files
     BrowserAnimationsModule,
     ToastrModule.forRoot({
       positionClass: 'toast-top-center',   // Position of the toastr
-      timeOut: 3000,                        // Duration for the toast to be displayed
+      timeOut: 2000,                        // Duration for the toast to be displayed
       closeButton: true,                 // Optionally show a close button
       progressBar: true,                 // Show progress bar
       preventDuplicates: true,           // Prevent duplicate toastrs

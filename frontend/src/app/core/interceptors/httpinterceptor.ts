@@ -6,9 +6,9 @@ import { Observable } from 'rxjs';
 export class HttpInterceptorService implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
-    // Get the token from storage or wherever you store it
+    // Get the token from sessionStorage
     const token = sessionStorage.getItem('authToken'); // Or use your preferred method
-
+    console.log(token)
     // Clone the request to add the authorization header
     if (token) {
       const clonedRequest = req.clone({

@@ -60,22 +60,5 @@ export class SignUpComponent implements OnInit {
       console.log('Form is invalid');
     }
   }
-  
-  
 
-  /*onSubmit(): void {
-    if (this.signupForm.valid) {
-      console.log('Form Submitted:', this.signupForm.value);
-      this.authService.signup(this.signupForm.value).subscribe(
-        (response: any) => {
-          console.log('Signup successful', response);
-        },
-        (error: any) => {
-          console.error('Signup error', error);
-        }
-      );
-    } else {
-      console.log('Form is invalid');
-    }
-  }*/
 }

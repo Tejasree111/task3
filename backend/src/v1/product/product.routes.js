@@ -1,4 +1,4 @@
-const express = require('express');
+/*const express = require('express');
 const router = express.Router();
 const knexConfig = require('../../mysql/knexfile'); // Import knex configuration
 const knex = require('knex')(knexConfig.development); // Initialize knex with the configuration
@@ -10,8 +10,6 @@ const productController = require('./product.controller');
 router.get('/products', productController.getProducts);
 router.get('/vendors-and-categories', productController.getVendorsAndCategories);
 
-// PUT route for updating product status
-//router.put('/:id/status', productController.updateProductStatus);
 // Define route for soft delete
 router.put('/:productId/status', productController.updateProductStatus);
 
@@ -60,5 +58,15 @@ router.post('/add', async (req, res) => {
     res.status(500).json({ error: 'Failed to add product' });
   }
 });
+
+module.exports = router;*/
+const express = require('express');
+const router = express.Router();
+const productController = require('./product.controller');
+
+router.get('/', productController.getProducts);
+router.get('/vendors-and-categories', productController.getVendorsAndCategories);
+router.put('/:productId/status', productController.updateProductStatus);
+router.post('/add', productController.addProduct);
 
 module.exports = router;

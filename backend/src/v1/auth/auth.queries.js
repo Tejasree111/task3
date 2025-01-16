@@ -3,20 +3,23 @@ const db = require('../../mysql/connection');
 const insertUser = async (userData) => {
     try {
         console.log('Inserting user into database:', userData);
-        await db('users').insert(userData);
+        const user=await db('users').insert(userData);
         console.log('User successfully inserted');
+        console.log(user);
+        return user;
     } catch (err) {
         console.error('Error inserting user into database:', err);
         throw err;
     }
 };
 
-const getUserById = async (user_id) => {
+const getUserById = async (userId) => {
     try {
-        console.log('Fetching user by ID:', user_id);
+        console.log('Fetching user by ID:', {user_id:userId});
+        const user_id=userId;
         return await db('users')
             .select('first_name', 'last_name', 'email','username', 'thumbnail')
-            .where({ user_id })
+            .where("user_id", user_id )
             .first();
     } catch (err) {
         console.error('Error fetching user by ID:', err);

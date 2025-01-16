@@ -19,16 +19,16 @@ export class AuthService {
   ) {}
 
   // Login function
-  login(credentials: { email: string; password: string }): Observable<any> {
+login(credentials: { email: string; password: string }): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/login`, credentials);
   }
 
   // Signup function
-  signup(user: { username: string; email: string; password: string; first_name: string; last_name: string }): Observable<any> {
+signup(user: { username: string; email: string; password: string; first_name: string; last_name: string }): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/signup`, user);
   }
 
-  // Get user info from the backend
+// Get user info from the backend
 getUserProfile(): Observable<any> {
   const token = sessionStorage.getItem(this.tokenKey);
   if (!token) {
