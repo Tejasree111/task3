@@ -75,18 +75,20 @@ export class NavbarComponent implements OnInit {
     }
 
     const formData = new FormData();
-    formData.append('profileImage', this.selectedFile);
 
-    this.http.post('http://localhost:3000/api/v1/profile/upload-profile', formData).subscribe(
-      (response: any) => {
-        this.userProfile.profileImage = response.profilePicUrl;
+    formData.append('profileImage', this.selectedFile, this.selectedFile.name);
+
+    this.http.post('http://localhost:3000/api/v1/profile/upload-profile', formData).subscribe({
+      next: (response: any) => {
+        console.log('Profile picture uploaded successfully', response);
+        //this.userProfile = response;
+        this.userProfile.profileImage=response.profilePicUrl;
         this.closeModal();
-        console.log('Profile picture uploaded successfully');
       },
-      (error) => {
+      error: (error) => {
         console.error('Error uploading profile picture', error);
-      }
-    );
+      },
+    });
   }
 
   toggleDropdown(): void {
@@ -101,13 +103,13 @@ export class NavbarComponent implements OnInit {
         this.userProfile.email = data.email;
         this.userProfile.username = data.username;
         this.userProfile.profileImage = data.profileImage || 'assets/default-profile.jpg';
+        console.log(data);
       },
       (error) => {
         console.error('Error fetching user profile:', error);
       }
     );
   }
-
   logout(): void {
     sessionStorage.removeItem('authToken');
     this.router.navigate(['/login']);

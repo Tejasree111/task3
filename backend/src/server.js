@@ -10,6 +10,8 @@ server.use(cors());
 server.use(bodyParser.json());
 
 server.use('/api', productRoutes);
+server.use('/api/products', productRoutes);
+
 
 // Use the routes
 server.use('/api/v1', routes);

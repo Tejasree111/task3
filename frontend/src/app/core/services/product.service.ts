@@ -6,12 +6,24 @@ import { Observable } from 'rxjs';
   providedIn: 'root',
 })
 export class ProductService {
-  private apiUrl = 'http://localhost:3000/api'; // Replace with your backend URL
+  private apiUrl = 'http://localhost:3000/api';
 
   constructor(private http: HttpClient) {}
 
-  // Fetch all products
-  getProducts(): Observable<any[]> {
-    return this.http.get<any[]>(`${this.apiUrl}/products`);
-  }
+    getProducts(page: number, limit: number): Observable<any> {
+      return this.http.get<any>(
+        `${this.apiUrl}/products?page=${page}&limit=${limit}`
+      );
+    }
+
+    addProduct(productData: any,selectedImage:string | null): Observable<any> {
+     const product={productData,selectedImage};
+      return this.http.post<any>(`${this.apiUrl}/products/add`, product );
+    }
+
+    updateProductStatus(product: any): Observable<any> {
+      console.log("Product: ", product);
+      return this.http.put(`http://localhost:3000/api/products/${product.product_id}/status`, { status: product.status });
+    }
+    
 }

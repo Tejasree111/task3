@@ -46,7 +46,7 @@ const getProfile = async (req, res) => {
 
       //const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const user = await authQueries.getUserById(req.user.id); // Assuming you store user ID in JWT payload
-
+        
       if (!user) return res.status(404).send('User not found');
 
       // Return only the required fields
@@ -55,6 +55,7 @@ const getProfile = async (req, res) => {
           lastName: user.last_name,
           username:user.username,
           email: user.email,
+          profileImage:user.thumbnail,
       });
   } catch (err) {
       console.error('Error fetching user profile:', err);

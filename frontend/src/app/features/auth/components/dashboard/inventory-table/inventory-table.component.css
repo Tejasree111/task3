@@ -91,8 +91,6 @@
   gap: 20px; /* Optional, adds space between inventory and files upload components */
 }
 
-
-
 .files-upload-container {
   width: 300px; /* Adjust the width of the files-upload component */
 }
@@ -128,4 +126,64 @@
     padding-right: 5px;
     border-radius: 10px;
     text-align: center;  /* Optional: Centers the text inside the button */
+}
+.pagination-container {
+  margin-top: 20px;
+}
+
+.pagination {
+  display: flex;
+  list-style: none;
+  padding: 0;
+}
+
+.page-item {
+  margin: 0 5px;
+}
+
+.page-link {
+  background-color: white; /* White background */
+  color: rgb(221, 203, 203); /* Gray text color */
+  border: 1px solid black; /* Black border */
+  padding: 5px 10px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.page-item.active .page-link {
+  background-color: white; /* White background */
+  color: black; /* Black text for active page */
+  border-color: black; /* Black border */
+}
+
+.page-link.disabled {
+  pointer-events: none;
+  opacity: 0.6;
+}
+
+.page-link:hover {
+  background-color: #f8f9fa; /* Light gray background on hover */
+}
+
+/* Optional: Remove any unwanted default background color */
+.page-item .page-link {
+  background-color: white !important;
+}
+.drag-drop-area {
+  border: 2px dashed #ccc;
+  border-radius: 5px;
+  padding: 20px;
+  background-color: #f9f9f9;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.drag-drop-area.drag-over {
+  background-color: #e0e7ff;
+  border-color: blueviolet;
+}
+
+.modal-subtitle {
+  margin: 0;
+  font-size: 14px;
 }

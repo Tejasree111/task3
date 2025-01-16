@@ -15,7 +15,7 @@ const getUserById = async (user_id) => {
     try {
         console.log('Fetching user by ID:', user_id);
         return await db('users')
-            .select('first_name', 'last_name', 'email','username')
+            .select('first_name', 'last_name', 'email','username', 'thumbnail')
             .where({ user_id })
             .first();
     } catch (err) {
