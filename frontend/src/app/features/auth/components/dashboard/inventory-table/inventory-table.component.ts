@@ -5,6 +5,17 @@ import { jsPDF } from 'jspdf';
 import * as XLSX from 'xlsx';
 import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+interface Product {
+  id: number;
+  product_name: string;
+  category_name: string;
+  product_image?: string;
+  quantity_in_stock: number;
+  unit_price: number;
+  status: string;
+  vendors: string;
+  isSelected?: boolean;
+}
 
 @Component({
   selector: 'app-inventory-table',
@@ -25,7 +36,7 @@ export class InventoryTableComponent implements OnInit {
   }[] = [];
   isDragging: boolean = false;
   files: File[] = [];
-  //products: any[] = [];
+  cartProducts: any[] = [];
   totalVendorsCount = 3;
   totalPages: number = 0;
   currentPage: number = 1;
@@ -39,6 +50,25 @@ export class InventoryTableComponent implements OnInit {
   selectedVendorId: number | null = null;
   selectedCategoryId: number | null = null;
   selectedFile: File | null = null;
+  isCartView: boolean = false;
+  selectedProducts: boolean[] = [];
+  dropdownVisible:boolean=false;
+
+
+  // Columns filter state
+columnsFilter = {
+  product:false,
+  category: false,  // Whether to filter by category
+  vendor: false,    // Whether to filter by vendor
+  //status: false,    // Whether to filter by status
+  // You can add more flags for other columns if needed
+};
+
+
+  selectedCategory: string = '';
+selectedVendor: string = '';
+selectedStatus: string = '';
+searchTerm: string = '';
 
   constructor(
     private productService: ProductService,
@@ -60,7 +90,77 @@ export class InventoryTableComponent implements OnInit {
   ngOnInit(): void {
     this.loadProducts();
     this.loadVendorsAndCategories();
+    this.loadCartFromSession();
+    this.selectedProducts = new Array(this.cartProducts.length).fill(false);
   }
+  // Toggle visibility of the dropdown menu
+  toggleDropdown(): void {
+    this.dropdownVisible = !this.dropdownVisible;
+  }
+
+  // Load products into the cart from session storage
+  loadCartFromSession(): void {
+    const cart = sessionStorage.getItem('cart');
+    if (cart) {
+      this.cartProducts = JSON.parse(cart);
+    }
+  }
+
+  // Add selected products to the cart
+  moveToCart(): void {
+    const selectedProducts = this.products.filter(product => product.isSelected);
+    selectedProducts.forEach(product => {
+      const existingProduct = this.cartProducts.find(item => item.product_id === product.id);
+      if (existingProduct) {
+        existingProduct.quantity += 1;  // Increment quantity if already in cart
+      } else {
+        this.cartProducts.push({ ...product, quantity: 1 });  // Add new product with quantity 1
+      }
+    });
+
+    // Save the updated cart in session storage
+    sessionStorage.setItem('cart', JSON.stringify(this.cartProducts));
+    this.loadCartFromSession();  // Reload cart in component
+  }
+
+  // Increase quantity of product in cart
+  increaseQuantity(index: number): void {
+    this.cartProducts[index].quantity += 1;
+    this.updateCartInSession();
+  }
+
+  // Decrease quantity of product in cart
+  decreaseQuantity(index: number): void {
+    if (this.cartProducts[index].quantity > 1) {
+      this.cartProducts[index].quantity -= 1;
+      this.updateCartInSession();
+    }
+  }
+
+  // Remove product from cart
+  removeFromCart(index: number): void {
+    this.cartProducts.splice(index, 1);
+    this.updateCartInSession();
+  }
+
+  // Update the cart in session storage
+  updateCartInSession(): void {
+    sessionStorage.setItem('cart', JSON.stringify(this.cartProducts));
+  }
+
+  // Handle checkout logic (e.g., submit cart data to backend)
+  checkout(): void {
+    console.log('Proceed to checkout with the following cart:', this.cartProducts);
+    // You can send the cart data to the backend for order creation
+  }
+  
+
+
+   // Toggle view between All Products and Cart
+   toggleCartView() {
+    this.isCartView = !this.isCartView;
+  }
+
   loadVendorsAndCategories(): void {
     this.http
       .get<any>('http://localhost:3000/api/v1/products/vendors-and-categories')
@@ -199,7 +299,7 @@ saveProduct(productData: any, imageUrl: string | null) {
   importData(): void {
     this.uploadFiles();
   }
-
+/*
   loadProducts(): void {
     this.productService.getProducts(this.currentPage, this.limit).subscribe({
       next: (data) => {
@@ -211,7 +311,60 @@ saveProduct(productData: any, imageUrl: string | null) {
         console.error('Error fetching products:', error);
       },
     });
-  }
+  }*/
+
+    loadProducts(): void {
+      this.productService.getProducts(this.currentPage, this.limit).subscribe({
+        next: (data) => {
+          let filteredProducts:Product[] = data.products;
+    
+          // Apply search filtering
+          if (this.searchTerm) {
+            filteredProducts = filteredProducts.filter(product =>
+              product.product_name.toLowerCase().includes(this.searchTerm) ||
+              product.category_name.toLowerCase().includes(this.searchTerm) ||
+              product.vendors.toLowerCase().includes(this.searchTerm)
+            );
+          }
+    
+          // Apply category filter
+          if (this.selectedCategory) {
+            filteredProducts = filteredProducts.filter(
+              product => product.category_name === this.selectedCategory
+            );
+          }
+    
+          // Apply vendor filter
+          if (this.selectedVendor) {
+            filteredProducts = filteredProducts.filter(
+              product => product.vendors === this.selectedVendor
+            );
+          }
+    
+          // Apply status filter
+          if (this.selectedStatus !== '') {
+            filteredProducts = filteredProducts.filter(
+              product => product.status === this.selectedStatus
+            );
+          }
+    
+          this.products = filteredProducts;
+          this.totalPages = Math.ceil(filteredProducts.length / this.limit);  // Adjust the total pages based on filtered results
+        },
+        error: (error) => {
+          console.error('Error fetching products:', error);
+        },
+      });
+    }
+    searchQuery(event: any) {
+      this.searchTerm = event.target.value.toLowerCase();
+      this.loadProducts();
+    }
+    applyFilters(): void {
+      this.loadProducts();  // Re-load products with the filters applied
+    }
+      
+
  
   // Download selected products
   downloadSelected(): void {
@@ -290,11 +443,7 @@ saveProduct(productData: any, imageUrl: string | null) {
     return this.products.every((product) => product.isSelected);
   }
 
-  // Actions when buttons are clicked
-  moveToCart() {
-    console.log('Move to Cart');
-  }
-
+ 
   addProduct() {
     console.log('Add Product');
   }
@@ -305,10 +454,6 @@ saveProduct(productData: any, imageUrl: string | null) {
 
   viewCart() {
     console.log('View Cart');
-  }
-
-  searchQuery(event: any) {
-    console.log('Search:', event.target.value);
   }
 
   openFilters() {

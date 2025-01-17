@@ -296,3 +296,14 @@ input[type="number"]:disabled {
   border-radius: 10px;
   text-align: center;  /* Optional: Centers the text inside the button */
 }
+
+.buttons-container {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.dropdown-menu.show {
+  margin-top: 180px;
+  min-width: 200px;
+}

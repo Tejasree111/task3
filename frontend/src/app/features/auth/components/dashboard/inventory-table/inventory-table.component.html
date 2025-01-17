@@ -1,236 +1,350 @@
 <div class="inventory">
   <div class="table-top">
-  <div class="inventory-table-container">
-    <!-- Header Section -->
-    <div class="header d-flex justify-content-between">
-      <h4>Inventory Movements</h4>
-      <div class="vendor-count">Total Vendors: {{ totalVendorsCount }}</div>
-      <div class="action-buttons">
-        <button class="btn btn-outline-dark" (click)="moveToCart()">
-          Move to Cart
-        </button>
-        <button class="btn btn-outline-dark" (click)="downloadSelected()">
-          <i class="bi bi-download"></i> Download All
-        </button>
-        <button
-          class="btn btn-outline-dark"
-          (click)="importData()"
-          data-bs-toggle="modal"
-          data-bs-target="#importModal"
-        >
-          <i class="bi bi-upload"></i> Import
-        </button>
-        <button
-          class="btn btn-purple"
-          style="background-color: blueviolet; color: white"
-          data-bs-toggle="modal"
-          data-bs-target="#addProductModal"
-        >
-          <i class="bi bi-plus"></i> Add Products
-        </button>
-      </div>
-    </div>
-
-    <!-- Table and Other Content -->
-    <div class="button-group d-flex justify-content-between">
-      <div class="btn-group">
-        <button class="btn btn-outline-dark me-0" (click)="viewAll()">
-          View All
-        </button>
-        <button class="btn btn-outline-dark" (click)="viewCart()">Cart</button>
-      </div>
-
-      <div class="search-filter d-flex">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Search"
-          (input)="searchQuery($event)"
-        />
-        <button class="btn btn-outline-dark" (click)="openFilters()">
-          <i class="bi bi-filter"></i> Filters
-        </button>
-      </div>
-      </div>
-    </div>
-
-    <table class="table table-striped">
-      <thead>
-        <tr>
-          <th>
-            <input
-              type="checkbox"
-              (change)="toggleSelectAll($event)"
-              [checked]="isAllSelected()"
-            />
-          </th>
-          <th>Product Name</th>
-          <th>Status</th>
-          <th>Category</th>
-          <th>Vendors</th>
-          <th>Quantity</th>
-          <th>Unit</th>
-          <th>Actions</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let product of products; let i = index">
-          <td><input type="checkbox" [(ngModel)]="product.isSelected" /></td>
-          <td>
-            <div class="d-flex align-items-center">
-            <img
-              [src]="
-                product.product_image
-                  ? product.product_image
-                  : 'default-image.jpg'
-              "
-              alt=""
-              class="me-4"
-              width="60"
-              height="60"
-              style="object-fit: cover"
-            /><span>{{ product.product_name }}</span>
-            </div>
-          </td>
-          <td
-            [ngClass]="{
-              'text-success': product.status === '1',
-              'text-danger': product.status !== '1'
-            }"
+    <div class="inventory-table-container">
+      <!-- Header Section -->
+      <div class="header d-flex justify-content-between">
+        <h4>Inventory Movements</h4>
+        <div class="vendor-count">Total Vendors: {{ totalVendorsCount }}</div>
+        <div class="action-buttons">
+          <button
+            class="btn btn-outline-dark"
+            (click)="moveToCart()"
+            data-bs-toggle="modal"
+            data-bs-target="#moveToCartModal"
           >
-           <button class="actives"> {{ product.status === "1" ? "Active" : "Inactive" }}</button>
-          </td>
-          <td>{{ product.category_name }}</td>
-          <td>{{ product.vendors }}</td>
-          <td>{{ product.quantity_in_stock }}</td>
-          <td>{{ product.unit_price }}</td>
-          <td class="table-buttons">
-            <button class="btn" (click)="downloadProduct(product)">
-              <i class="bi bi-download"></i>
-            </button>
-            <button
-              class="btn"
-              data-bs-toggle="modal"
-              data-bs-target="#deleteProductModal"
-              (click)="setProductToDelete(product)"
-            >
-              <i class="bi bi-trash"></i>
-            </button>
-            <button class="btn" (click)="editProduct(product)">
-              <i class="bi bi-pencil"></i>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-    <!--add product modal-->
-    <div
-      class="modal fade"
-      id="addProductModal"
-      tabindex="-1"
-      aria-labelledby="addProductModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="addProductModalLabel">Add Product</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <form [formGroup]="addProductForm" (ngSubmit)="addProduct()">
-              <div class="mb-3">
-                <label for="productName" class="form-label">Product Name</label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="productName"
-                  formControlName="productName"
-                />
-              </div>
-              <div class="mb-3">
-                <label for="category" class="form-label">Category</label>
-                <select
-                  class="form-control"
-                  id="category"
-                  formControlName="category"
-                >
-                  <option
-                    *ngFor="let category of categories"
-                    [value]="category.category_id"
-                  >
-                    {{ category.category_name }}
-                  </option>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label for="vendor" class="form-label">Vendor</label>
-                <select
-                  class="form-select"
-                  id="vendor"
-                  formControlName="vendor"
-                >
-                  <option
-                    *ngFor="let vendor of vendors"
-                    [value]="vendor.vendor_id"
-                  >
-                    {{ vendor.vendor_name }}
-                  </option>
-                </select>
-              </div>
+            Move to Cart
+          </button>
+          <button class="btn btn-outline-dark" (click)="downloadSelected()">
+            <i class="bi bi-download"></i> Download All
+          </button>
+          <button
+            class="btn btn-outline-dark"
+            (click)="importData()"
+            data-bs-toggle="modal"
+            data-bs-target="#importModal"
+          >
+            <i class="bi bi-upload"></i> Import
+          </button>
+          <button
+            class="btn btn-purple"
+            style="background-color: blueviolet; color: white"
+            data-bs-toggle="modal"
+            data-bs-target="#addProductModal"
+          >
+            <i class="bi bi-plus"></i> Add Products
+          </button>
+        </div>
+      </div>
 
-              <div class="mb-3">
-                <label for="quantity" class="form-label"
-                  >Quantity in Stock</label
-                >
+
+
+      <div class="buttons-container d-flex justify-content-between align-items-center">
+        <!-- Left-aligned buttons (View All and Cart) -->
+        <div class="button-group d-flex">
+          <div class="btn-group">
+            <button class="btn btn-outline-dark" (click)="viewAll()">
+              View All
+            </button>
+            <button class="btn btn-outline-dark" (click)="viewCart()">
+              Cart
+            </button>
+          </div>
+        </div>
+      
+        <!-- Right-aligned search and filter -->
+        <div class="search-filter d-flex align-items-center">
+          <input
+            type="text"
+            class="form-control me-2"
+            placeholder="Search"
+            (input)="searchQuery($event)"
+          />
+          <button class="btn btn-outline-dark" (click)="toggleDropdown()">
+            <i class="bi bi-filter"></i> Filters
+          </button>
+      
+          <!-- Filters Dropdown -->
+          <div *ngIf="dropdownVisible" class="dropdown-menu show">
+            <div class="dropdown-item">
+              <div class="form-check">
                 <input
-                  type="number"
-                  class="form-control"
-                  id="quantity"
-                  formControlName="quantity"
+                  type="checkbox"
+              
+                  id="filterProduct"
+                  [(ngModel)]="columnsFilter.product"
+                  (change)="applyFilters()"
                 />
+                <label class="form-check-label" for="filterProduct">Product</label>
               </div>
-              <div class="mb-3">
-                <label for="unit" class="form-label">Unit</label>
+            </div>
+      
+            <div class="dropdown-item">
+              <div class="form-check">
                 <input
-                  type="text"
-                  class="form-control"
-                  id="unit"
-                  formControlName="unit"
+                  type="checkbox"
+                
+                  id="filterCategory"
+                  [(ngModel)]="columnsFilter.category"
+                  (change)="applyFilters()"
                 />
+                <label class="form-check-label" for="filterCategory">Category</label>
               </div>
-              <div class="mb-3">
-                <label for="status" class="form-label">Status</label>
-                <select
-                  class="form-select"
-                  id="status"
-                  formControlName="status"
-                >
-                  <option value="1">Active</option>
-                  <option value="0">Inactive</option>
-                </select>
-              </div>
-              <div class="mb-3">
-                <label for="fileUpload" class="form-label">Upload Image</label>
+            </div>
+      
+            <div class="dropdown-item">
+              <div class="form-check">
                 <input
-                  type="file"
-                  class="form-control"
-                  id="fileUpload"
-                  (change)="onImageSelect($event)"
+                  type="checkbox"
+            
+                  id="filterVendor"
+                  [(ngModel)]="columnsFilter.vendor"
+                  (change)="applyFilters()"
                 />
-                <div *ngIf="selectedImage" class="mt-2">
+                <label class="form-check-label" for="filterVendor">Vendor</label>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+        <!-- Filters Modal -->
+
+        <table class="table table-striped">
+          <thead>
+            <tr>
+              <th>
+                <input
+                  type="checkbox"
+                  (change)="toggleSelectAll($event)"
+                  [checked]="isAllSelected()"
+                />
+              </th>
+              <th>Product Name</th>
+              <th>Status</th>
+              <th>Category</th>
+              <th>Vendors</th>
+              <th>Quantity</th>
+              <th>Unit</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let product of products; let i = index">
+              <td>
+                <input type="checkbox" [(ngModel)]="product.isSelected" />
+              </td>
+              <td>
+                <div class="d-flex align-items-center">
                   <img
-                    [src]="selectedImage"
-                    alt="Selected Image"
-                    class="rounded-circle"
-                    width="50"
-                  />
+                    [src]="
+                      product.product_image
+                        ? product.product_image
+                        : 'default-image.jpg'
+                    "
+                    alt=""
+                    class="me-4"
+                    width="60"
+                    height="60"
+                    style="object-fit: cover"
+                  /><span>{{ product.product_name }}</span>
                 </div>
+              </td>
+              <td
+                [ngClass]="{
+                  'text-success': product.status === '1',
+                  'text-danger': product.status !== '1'
+                }"
+              >
+                <button class="actives">
+                  {{ product.status === "1" ? "Active" : "Inactive" }}
+                </button>
+              </td>
+              <td>{{ product.category_name }}</td>
+              <td>{{ product.vendors }}</td>
+              <td>{{ product.quantity_in_stock }}</td>
+              <td>{{ product.unit_price }}</td>
+              <td class="table-buttons">
+                <button class="btn" (click)="downloadProduct(product)">
+                  <i class="bi bi-download"></i>
+                </button>
+                <button
+                  class="btn"
+                  data-bs-toggle="modal"
+                  data-bs-target="#deleteProductModal"
+                  (click)="setProductToDelete(product)"
+                >
+                  <i class="bi bi-trash"></i>
+                </button>
+                <button class="btn" (click)="editProduct(product)">
+                  <i class="bi bi-pencil"></i>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <!--add product modal-->
+        <div
+          class="modal fade"
+          id="addProductModal"
+          tabindex="-1"
+          aria-labelledby="addProductModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="addProductModalLabel">
+                  Add Product
+                </h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <form [formGroup]="addProductForm" (ngSubmit)="addProduct()">
+                  <div class="mb-3">
+                    <label for="productName" class="form-label"
+                      >Product Name</label
+                    >
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="productName"
+                      formControlName="productName"
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label for="category" class="form-label">Category</label>
+                    <select
+                      class="form-control"
+                      id="category"
+                      formControlName="category"
+                    >
+                      <option
+                        *ngFor="let category of categories"
+                        [value]="category.category_id"
+                      >
+                        {{ category.category_name }}
+                      </option>
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="vendor" class="form-label">Vendor</label>
+                    <select
+                      class="form-select"
+                      id="vendor"
+                      formControlName="vendor"
+                    >
+                      <option
+                        *ngFor="let vendor of vendors"
+                        [value]="vendor.vendor_id"
+                      >
+                        {{ vendor.vendor_name }}
+                      </option>
+                    </select>
+                  </div>
+
+                  <div class="mb-3">
+                    <label for="quantity" class="form-label"
+                      >Quantity in Stock</label
+                    >
+                    <input
+                      type="number"
+                      class="form-control"
+                      id="quantity"
+                      formControlName="quantity"
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label for="unit" class="form-label">Unit</label>
+                    <input
+                      type="text"
+                      class="form-control"
+                      id="unit"
+                      formControlName="unit"
+                    />
+                  </div>
+                  <div class="mb-3">
+                    <label for="status" class="form-label">Status</label>
+                    <select
+                      class="form-select"
+                      id="status"
+                      formControlName="status"
+                    >
+                      <option value="1">Active</option>
+                      <option value="0">Inactive</option>
+                    </select>
+                  </div>
+                  <div class="mb-3">
+                    <label for="fileUpload" class="form-label"
+                      >Upload Image</label
+                    >
+                    <input
+                      type="file"
+                      class="form-control"
+                      id="fileUpload"
+                      (change)="onImageSelect($event)"
+                    />
+                    <div *ngIf="selectedImage" class="mt-2">
+                      <img
+                        [src]="selectedImage"
+                        alt="Selected Image"
+                        class="rounded-circle"
+                        width="50"
+                      />
+                    </div>
+                  </div>
+                  <div class="modal-footer">
+                    <button
+                      type="button"
+                      class="btn btn-secondary"
+                      data-bs-dismiss="modal"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="submit"
+                      class="btn btn-primary"
+                      (click)="addProducts()"
+                    >
+                      Add Product
+                    </button>
+                  </div>
+                </form>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Delete Product Modal -->
+        <div
+          class="modal fade"
+          id="deleteProductModal"
+          tabindex="-1"
+          aria-labelledby="deleteProductModalLabel"
+          aria-hidden="true"
+        >
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="deleteProductModalLabel">
+                  Delete Product
+                </h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <p>
+                  Are you sure you want to delete this product? This action
+                  cannot be undone!
+                </p>
               </div>
               <div class="modal-footer">
                 <button
@@ -241,180 +355,225 @@
                   Cancel
                 </button>
                 <button
-                  type="submit"
-                  class="btn btn-primary"
-                  (click)="addProducts()"
+                  type="button"
+                  class="btn btn-danger"
+                  (click)="confirmDelete()"
                 >
-                  Add Product
+                  Delete
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Delete Product Modal -->
-    <div
-      class="modal fade"
-      id="deleteProductModal"
-      tabindex="-1"
-      aria-labelledby="deleteProductModalLabel"
-      aria-hidden="true"
-    >
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <div class="modal-header">
-            <h5 class="modal-title" id="deleteProductModalLabel">
-              Delete Product
-            </h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-          <div class="modal-body">
-            <p>
-              Are you sure you want to delete this product? This action cannot
-              be undone!
-            </p>
-          </div>
-          <div class="modal-footer">
-            <button
-              type="button"
-              class="btn btn-secondary"
-              data-bs-dismiss="modal"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              class="btn btn-danger"
-              (click)="confirmDelete()"
-            >
-              Delete
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <!-- Import Modal -->
-    <div
-      class="modal fade"
-      id="importModal"
-      tabindex="-1"
-      aria-labelledby="importModalLabel"
-      aria-hidden="true"
-      style="backdrop-filter: blur(0px); background: rgba(77, 76, 76, 0.7)"
-    >
-      <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-          <!-- Modal Header -->
-          <div class="modal-header">
-            <h5 class="modal-title" id="importModalLabel">
-              Upload and Attach Files
-            </h5>
-            <p class="modal-subtitle text-muted">
-              Upload and attach files to this project
-            </p>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            ></button>
-          </div>
-
-          <!-- Modal Body -->
-          <div class="modal-body">
-            <div
-              class="drag-drop-area border border-dashed p-4 text-center"
-              (drop)="onFileDrop($event)"
-              (dragover)="onDragOver($event)"
-              (dragleave)="onDragLeave($event)"
-              [class.drag-over]="isDragging"
-            >
-              <p class="mb-0">Drag and drop files here, or click to browse</p>
-              <input
-                type="file"
-                class="d-none"
-                id="fileInput"
-                (change)="onFileSelect($event)"
-                multiple
-              />
             </div>
           </div>
+        </div>
 
-          <!-- Modal Footer -->
-          <div class="modal-footer d-flex justify-content-center">
-            <button
-              type="button"
-              class="btn btn-secondary me-2"
-              data-bs-dismiss="modal"
-            >
-              Cancel
-            </button>
-            <button
-              type="button"
-              class="btn"
-              style="background-color: blueviolet; color: white"
-              (click)="uploadFiles()"
-            >
-              Upload
-            </button>
+        <!-- Import Modal -->
+        <div
+          class="modal fade"
+          id="importModal"
+          tabindex="-1"
+          aria-labelledby="importModalLabel"
+          aria-hidden="true"
+          style="backdrop-filter: blur(0px); background: rgba(77, 76, 76, 0.7)"
+        >
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <!-- Modal Header -->
+              <div class="modal-header">
+                <h5 class="modal-title" id="importModalLabel">
+                  Upload and Attach Files
+                </h5>
+                <p class="modal-subtitle text-muted">
+                  Upload and attach files to this project
+                </p>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+
+              <!-- Modal Body -->
+              <div class="modal-body">
+                <div
+                  class="drag-drop-area border border-dashed p-4 text-center"
+                  (drop)="onFileDrop($event)"
+                  (dragover)="onDragOver($event)"
+                  (dragleave)="onDragLeave($event)"
+                  [class.drag-over]="isDragging"
+                >
+                  <p class="mb-0">
+                    Drag and drop files here, or click to browse
+                  </p>
+                  <input
+                    type="file"
+                    class="d-none"
+                    id="fileInput"
+                    (change)="onFileSelect($event)"
+                    multiple
+                  />
+                </div>
+              </div>
+
+              <!-- Modal Footer -->
+              <div class="modal-footer d-flex justify-content-center">
+                <button
+                  type="button"
+                  class="btn btn-secondary me-2"
+                  data-bs-dismiss="modal"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  class="btn"
+                  style="background-color: blueviolet; color: white"
+                  (click)="uploadFiles()"
+                >
+                  Upload
+                </button>
+              </div>
+            </div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <div
-      class="pagination-container d-flex justify-content-between align-items-center"
-    >
-      <button
-        class="btn btn-outline-dark"
-        (click)="previousPage()"
-        [disabled]="currentPage === 1"
-      >
-        <i class="bi bi-arrow-left"></i>
-        Previous
-      </button>
+        <!-- Move to Cart Modal -->
 
-      <ul class="pagination">
-        <li class="page-item" *ngIf="currentPage > 2">
-          <button class="page-link" (click)="goToPage(1)">1</button>
-        </li>
-        <li class="page-item" *ngIf="currentPage > 3">
-          <span class="page-link disabled">...</span>
-        </li>
-        <li
-          class="page-item"
-          *ngFor="let page of getDisplayedPages()"
-          [class.active]="currentPage === page"
+        <div
+          class="modal fade"
+          id="moveToCartModal"
+          tabindex="-1"
+          aria-labelledby="moveToCartModalLabel"
+          aria-hidden="true"
         >
-          <button class="page-link" (click)="goToPage(page)">
-            {{ page }}
-          </button>
-        </li>
-        <li class="page-item" *ngIf="currentPage < totalPages - 2">
-          <span class="page-link disabled">...</span>
-        </li>
-        <li class="page-item" *ngIf="currentPage < totalPages - 1">
-          <button class="page-link" (click)="goToPage(totalPages)">
-            {{ totalPages }}
-          </button>
-        </li>
-      </ul>
+          <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+              <div class="modal-header">
+                <h5 class="modal-title" id="moveToCartModalLabel">
+                  Move to Cart
+                </h5>
+                <button
+                  type="button"
+                  class="btn-close"
+                  data-bs-dismiss="modal"
+                  aria-label="Close"
+                ></button>
+              </div>
+              <div class="modal-body">
+                <table class="table table-striped">
+                  <thead>
+                    <tr>
+                      <th>Select</th>
+                      <th>Product Name</th>
+                      <th>Quantity</th>
+                      <th>Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr *ngFor="let product of cartProducts; let i = index">
+                      <td>
+                        <input
+                          type="checkbox"
+                          [(ngModel)]="selectedProducts[i]"
+                        />
+                      </td>
+                      <td>{{ product.product_name }}</td>
+                      <td>
+                        <div class="btn-group">
+                          <button
+                            class="btn btn-outline-dark"
+                            (click)="decreaseQuantity(i)"
+                          >
+                            -
+                          </button>
+                          <span>{{ product.quantity }}</span>
+                          <button
+                            class="btn btn-outline-dark"
+                            (click)="increaseQuantity(i)"
+                          >
+                            +
+                          </button>
+                        </div>
+                      </td>
+                      <td>
+                        <button
+                          class="btn btn-danger"
+                          (click)="removeFromCart(i)"
+                        >
+                          <i class="bi bi-trash"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="modal-footer">
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  data-bs-dismiss="modal"
+                >
+                  Close
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-primary"
+                  (click)="checkout()"
+                >
+                  Checkout
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
-      <button
-        class="btn btn-outline-dark"
-        (click)="nextPage()"
-        [disabled]="currentPage === totalPages"
-      >
-        Next<i class="bi bi-arrow-right"></i>
-      </button>
+        <div
+          class="pagination-container d-flex justify-content-between align-items-center"
+        >
+          <button
+            class="btn btn-outline-dark"
+            (click)="previousPage()"
+            [disabled]="currentPage === 1"
+          >
+            <i class="bi bi-arrow-left"></i>
+            Previous
+          </button>
+
+          <ul class="pagination">
+            <li class="page-item" *ngIf="currentPage > 2">
+              <button class="page-link" (click)="goToPage(1)">1</button>
+            </li>
+            <li class="page-item" *ngIf="currentPage > 3">
+              <span class="page-link disabled">...</span>
+            </li>
+            <li
+              class="page-item"
+              *ngFor="let page of getDisplayedPages()"
+              [class.active]="currentPage === page"
+            >
+              <button class="page-link" (click)="goToPage(page)">
+                {{ page }}
+              </button>
+            </li>
+            <li class="page-item" *ngIf="currentPage < totalPages - 2">
+              <span class="page-link disabled">...</span>
+            </li>
+            <li class="page-item" *ngIf="currentPage < totalPages - 1">
+              <button class="page-link" (click)="goToPage(totalPages)">
+                {{ totalPages }}
+              </button>
+            </li>
+          </ul>
+
+          <button
+            class="btn btn-outline-dark"
+            (click)="nextPage()"
+            [disabled]="currentPage === totalPages"
+          >
+            Next<i class="bi bi-arrow-right"></i>
+          </button>
+        </div>
+    
     </div>
   </div>
 </div>
