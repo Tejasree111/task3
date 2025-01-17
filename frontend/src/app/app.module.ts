@@ -11,7 +11,6 @@ import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { NavbarComponent } from './features/auth/components/dashboard/navbar/navbar.component';
 import { HttpInterceptorService } from './core/interceptors/httpinterceptor';
-//import { InventoryTableComponent } from './features/auth/components/dashboard/inventory-table/inventory-table.component';
 import { InventoryTableComponent } from './features/auth/components/dashboard/inventory-table/inventory-table.component';
 import { FilesUploadComponent } from './features/auth/components/dashboard/files-upload/files-upload.component';
 

@@ -81,7 +81,6 @@ export class NavbarComponent implements OnInit {
     this.http.post('http://localhost:3000/api/v1/profile/upload-profile', formData).subscribe({
       next: (response: any) => {
         console.log('Profile picture uploaded successfully', response);
-        //this.userProfile = response;
         this.userProfile.profileImage=response.profilePicUrl;
         this.closeModal();
       },

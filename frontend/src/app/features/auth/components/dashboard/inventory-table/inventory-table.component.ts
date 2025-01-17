@@ -33,6 +33,7 @@ export class InventoryTableComponent implements OnInit {
   addProductForm: FormGroup;
   //vendors and categories
   vendors: any[] = [];
+  selectedVendors: { [key: string]: boolean } = {};
   categories: any[] = [];
   selectedImage: string | null = null;
   selectedVendorId: number | null = null;
@@ -103,60 +104,45 @@ export class InventoryTableComponent implements OnInit {
       this.selectedFile = file;
     }
   }
-  addProducts() {
-    if (this.addProductForm.valid) {
-      const productData = this.addProductForm.value;
 
-      if (this.addProductForm.value.productImage != null) {
-        const formData = new FormData();
-        if (this.selectedFile)
-          formData.append(
-            'productImage',
-            this.selectedFile,
-            this.selectedFile.name
-          );
-        this.http
-          .post('http://localhost:3000/api/v1/profile/upload-product', formData)
-          .subscribe({
-            next: (response: any) => {
-              console.log('Profile picture uploaded successfully', response);
-              //this.userProfile = response;
-              this.selectedImage = response.thumbnailUrl;
-              this.productService
-                .addProduct(productData, this.selectedImage)
-                .subscribe({
-                  next: (response) => {
-                    console.log('Product added successfully', response);
-                    this.toastr.success('Product added successfully!');
-                    this.loadProducts(); // Refresh the product list
-                  },
-                  error: (error) => {
-                    console.error('Error adding product', error);
-                    this.toastr.error('Failed to add product');
-                  },
-                });
-            },
-            error: (error) => {
-              console.error('Error uploading profile picture', error);
-            },
-          });
-      } else {
-        this.productService.addProduct(productData, null).subscribe({
-          next: (response) => {
-            console.log('Product added successfully', response);
-            this.toastr.success('Product added successfully!');
-            this.loadProducts(); // Refresh the product list
-          },
-          error: (error) => {
-            console.error('Error adding product', error);
-            this.toastr.error('Failed to add product');
-          },
-        });
-      }
-      // Call your service to save the product
-      console.log(productData);
-    }
+  
+addProducts() {
+  if (!this.addProductForm.valid) return;
+
+  const productData = this.addProductForm.value;
+  const formData = new FormData();
+
+  if (this.selectedFile) {
+    formData.append('productImage', this.selectedFile, this.selectedFile.name);
+    this.http.post('http://localhost:3000/api/v1/profile/upload-product', formData)
+      .subscribe({
+        next: (response: any) => {
+          this.selectedImage = response.thumbnailUrl;
+          this.saveProduct(productData, response.productPicUrl);
+        },
+        error: (error) => console.error('Error uploading image', error)
+      });
+  } else {
+    this.saveProduct(productData, null);
   }
+}
+
+saveProduct(productData: any, imageUrl: string | null) {
+  this.productService.addProduct(productData, imageUrl).subscribe({
+    next: (response) => {
+      console.log('Product added successfully', response);
+      this.toastr.success('Product added successfully!');
+      this.loadProducts(); // Refresh the product list
+    },
+    error: (error) => {
+      console.error('Error adding product', error);
+      this.toastr.error('Failed to add product');
+    }
+  });
+}
+
+
+
   onDragOver(event: DragEvent): void {
     event.preventDefault();
     this.isDragging = true;
@@ -263,9 +249,7 @@ export class InventoryTableComponent implements OnInit {
     this.currentPage = page;
     this.loadProducts();
   }
-
-
-
+  
   nextPage(): void {
     if (this.currentPage < this.totalPages) {
       this.currentPage++;

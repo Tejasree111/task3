@@ -121,17 +121,6 @@ const getProducts = async (req, res) => {
   }
 };
 
-/*
-const getVendorsAndCategories = async (req, res) => {
-  try {
-    const vendors = await productQueries.getAllVendors();
-    const categories = await productQueries.getAllCategories();
-    res.status(200).json({ vendors, categories });
-  } catch (error) {
-    res.status(500).json({ error: 'Error retrieving vendors and categories' });
-  }
-};*/
-
 
 const getVendorsAndCategories = async (req, res) => {
   try {
@@ -149,20 +138,6 @@ const getVendorsAndCategories = async (req, res) => {
     res.status(500).json({ message: 'Error retrieving vendors and categories', error });
   }
 };
-/*
-const updateProductStatus = async (req, res) => {
-  const { productId } = req.params;
-  const status = "99"; // Soft delete status
-
-  try {
-    const result = await productQueries.updateProductStatus(productId, status);
-    if (result === 0) return res.status(404).json({ message: 'Product not found' });
-
-    res.status(200).json({ message: 'Product status updated successfully' });
-  } catch (error) {
-    res.status(500).json({ error: 'Error updating product status' });
-  }
-};*/
 
 const updateProductStatus = async (req, res) => {
   console.log(req.params);
@@ -187,17 +162,6 @@ const updateProductStatus = async (req, res) => {
   }
 };
 
-/*
-const addProduct = async (req, res) => {
-  const { productData, selectedImage } = req.body;
-
-  try {
-    const newProduct = await productQueries.addProduct(productData, selectedImage);
-    res.status(201).json({ product_id: newProduct });
-  } catch (error) {
-    res.status(500).json({ error: 'Failed to add product' });
-  }
-};*/
 
 const addProduct = async (req, res) => {
   const {

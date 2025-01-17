@@ -59,6 +59,8 @@ const getProfile = async (req, res) => {
 
 module.exports = { signup ,login ,getProfile};
 */
+
+
 const authService = require('./auth.service');
 const { signupSchema } = require('../validations/auth.validation');
 const jwt = require('jsonwebtoken')

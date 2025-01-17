@@ -31,7 +31,7 @@ const getUserByEmail = async (email) => {
     try {
         console.log('Fetching user by email:', email);
         // Querying the user from the database by email
-        const result = await db('users').where({ email }).first();  // Assuming you're using Knex.js or a similar query builder
+        const result = await db('users').where({ email }).first();  
         if (result) {
             console.log('User found:', result);
             return result;  // Return the user object

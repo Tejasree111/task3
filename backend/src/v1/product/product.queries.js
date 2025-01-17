@@ -1,4 +1,5 @@
 /*const knexConfig = require('../../mysql/knexfile'); // Import knex configuration
+
 const knex = require('knex')(knexConfig.development); // Initialize knex with the configuration
 
 const getAllProducts = (limit, offset) => {
@@ -49,15 +50,8 @@ module.exports = {
   getAllVendors,
   getAllCategories,
 };*/
+
 const knex = require('../../mysql/connection');
-/*
-const getAllProducts = (limit, offset) => {
-  return knex('products')
-    .limit(limit)
-    .offset(offset)
-    .where('status', 1) // Active products only
-    .select('*');
-};*/
 
 const getAllProducts = (limit, offset) => {
   return knex('products')
@@ -74,7 +68,7 @@ const getAllProducts = (limit, offset) => {
       'products.product_image',
       'products.status'
     )
-      .where('products.status', "1")
+    .where('products.status', "1")
     .groupBy(
       'products.product_id',
       'categories.category_name',
@@ -103,16 +97,5 @@ const getAllCategories = () => {
 const updateProductStatus = (productId, status) => {
   return knex('products').where('product_id', productId).update({ status });
 };
-/*
-const addProduct = (productData, selectedImage) => {
-  return knex('products').insert({
-    product_name: productData.productName,
-    category_id: productData.category,
-    quantity_in_stock: productData.quantity,
-    unit_price: productData.unit,
-    product_image: selectedImage,
-    status: productData.status || 1, // Default to active
-  });
-};*/
 
 module.exports = { getAllProducts, getProductCount, getAllVendors, getAllCategories, updateProductStatus};
