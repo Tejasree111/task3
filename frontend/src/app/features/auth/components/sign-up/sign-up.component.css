@@ -30,10 +30,11 @@
     margin-top: 0.25rem;
   }
   .sign-up-image{
-    width: 650px;
-    height: 650px;
+    width: 450px;
+    height: 450px;
     border-top-left-radius: 100px;
     border-bottom-left-radius: 100px;
+    image-resolution: 100%;
   }
   .button{
     border-color: black;

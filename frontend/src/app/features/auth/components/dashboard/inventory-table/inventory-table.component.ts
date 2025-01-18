@@ -60,8 +60,8 @@ columnsFilter = {
   product:false,
   category: false,  // Whether to filter by category
   vendor: false,    // Whether to filter by vendor
-  //status: false,    // Whether to filter by status
-  // You can add more flags for other columns if needed
+  
+  
 };
 
 
@@ -317,6 +317,8 @@ saveProduct(productData: any, imageUrl: string | null) {
       this.productService.getProducts(this.currentPage, this.limit).subscribe({
         next: (data) => {
           let filteredProducts:Product[] = data.products;
+          this.totalPages = data.totalPages;
+          console.log("total pages:" ,this.totalPages);
     
           // Apply search filtering
           if (this.searchTerm) {
@@ -349,7 +351,7 @@ saveProduct(productData: any, imageUrl: string | null) {
           }
     
           this.products = filteredProducts;
-          this.totalPages = Math.ceil(filteredProducts.length / this.limit);  // Adjust the total pages based on filtered results
+          //this.totalPages = Math.ceil(filteredProducts.length / this.limit);  // Adjust the total pages based on filtered results
         },
         error: (error) => {
           console.error('Error fetching products:', error);

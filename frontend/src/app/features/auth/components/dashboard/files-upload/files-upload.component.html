@@ -1,20 +1,78 @@
-<!-- src/app/features/auth/components/dashboard/files-upload/files-upload.component.html -->
 <div class="files-upload-container">
-    <!-- Title -->
-    <h5>Files Uploaded</h5>
-    
-    <!-- Buttons Section -->
-    <div class="action-buttons">
-      <button class="btn btn-white" (click)="downloadAll()">Download All</button>
-      <button class="btn" (click)="uploadFiles()">Upload</button>
-    </div>
-    
-    <!-- File List Section -->
-    <div class="file-list">
-      <div *ngFor="let file of uploadedFiles">
-        <input type="checkbox" id="{{ file.name }}" />
-        <label for="{{ file.name }}">{{ file.name }}</label>
-      </div>
+  <!-- Title -->
+  <h5>Files Uploaded</h5>
+  
+  <!-- Buttons Section -->
+  <div class="action-buttons">
+    <button class="btn" style="background-color: rgb(255, 255, 255); color: black; border-radius: 10px; border: 1px solid black;" (click)="downloadAll()">Download All</button>
+    <button class="btn" (click)="openModal()" data-bs-toggle="modal" data-bs-target="uploadModal">upload</button>
+  </div>
+  
+  <!-- File List Section -->
+  <div class="file-list">
+    <div *ngFor="let file of uploadedFiles">
+      <input type="checkbox" id="{{ file.name }}" />
+      <label for="{{ file.name }}">{{ file.name }}</label>
     </div>
   </div>
   
+
+<!-- Modal for File upload -->
+<div
+  class="modal fade"
+  id="profilePictureModal"
+  tabindex="-1"
+  aria-labelledby="profilePictureModalLabel"
+  aria-hidden="true"
+  [ngClass]="{ 'show': isModalOpen }"
+  style="backdrop-filter: blur(5px);background: rgba(0, 0, 0, 0.7);"
+  [style.display]="isModalOpen ? 'block' : 'none'"
+  (click)="closeModal()"
+>
+  <div class="modal-dialog modal-dialog-centered custom-modal" (click)="$event.stopPropagation()" style="width: 400px; height:300px">
+    <div class="modal-content">
+      <!-- Modal Header -->
+      <div class="modal-header">
+        <h5 class="modal-title">Upload Profile Photo</h5>
+        <button
+          type="button"
+          class="btn-close"
+          aria-label="Close"
+          (click)="closeModal()"
+        ></button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body">
+        <!-- Subtitle -->
+        <div class="text-muted mb-3">Upload files in this project.</div>
+
+        <!-- Drag and Drop Area -->
+        <div
+          class="drag-drop-area border border-dashed rounded text-center py-4"
+          (dragover)="onDragOver($event)"
+          (dragleave)="onDragLeave($event)"
+          (drop)="onDrop($event)"
+        > <p class="text-muted">Drag and drop your files here, or</p>
+        </div>
+          <input
+            type="file"
+            class="form-control"
+            (change)="onFileChange($event)"
+            accept="image/*"
+          />
+      </div>
+
+      <!-- Modal Footer with Buttons -->
+      <div class="modal-footer justify-content-center">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()" style="color: black;">Cancel</button>
+        <button type="button" class="btn btn-primary" (click)="uploadFiles()">Upload</button>
+       </div>
+  </div>
+</div>
+
+
+
+
+
+

@@ -92,6 +92,7 @@ export class NavbarComponent implements OnInit {
 
   toggleDropdown(): void {
     this.isDropdownOpen = !this.isDropdownOpen;
+    console.log("dropdown called",this.isDropdownOpen)
   }
 
   fetchUserProfile(): void {

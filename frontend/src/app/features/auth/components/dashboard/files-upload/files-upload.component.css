@@ -33,4 +33,125 @@
     color: white;
     background-color: rgb(153, 69, 231);
   }
+  .btn .white{
+    background-color: white;
+    color: black;
+  }
+
+
+/* Modal header */
+.modal-header {
+  background-color: #f8f9fa; /* Light background for header */
+  border-bottom: 1px solid #dee2e6; /* Border at the bottom */
+  }
   
+  .modal-header .modal-title {
+  font-size: 22px; /* Set the font size for the title */
+  font-weight: bold;
+  }
+  
+  /* Modal body */
+  .modal-body {
+  margin: 5px; /* Add 5px margin around the modal body */
+  padding: 20px; /* Add padding for content spacing */
+  }
+  
+  /* Style for the file input */
+  .modal-body input[type="file"] {
+  width: 100%; /* Make the file input full-width */
+  padding: 10px; /* Add padding for the file input */
+  border-radius: 5px;
+  border: 1px solid #ced4da; /* Border color */
+  margin-top: 10px; /* Space between input and text */
+  }
+  
+  /* Subtitle styling */
+  .modal-body p {
+  font-size: 16px; /* Subtitle font size */
+  color: #6c757d; /* Subtitle color */
+  text-align: center; /* Center the subtitle */
+  margin-top: 10px; /* Add space above subtitle */
+  }
+  
+  /* Modal footer (Center the buttons) */
+  .modal-footer {
+  display: flex;
+  justify-content: center; /* Center the buttons horizontally */
+  gap: 20px; /* Space between the buttons */
+  padding: 10px;
+  }
+  
+  /* Style for the Cancel and Upload buttons */
+  .modal-footer .btn {
+  border-radius: 5px; /* Round the corners of the buttons */
+  padding: 10px 20px; /* Add padding for the buttons */
+  font-size: 16px; /* Set font size */
+  }
+  
+  /* Style for the 'Cancel' button */
+  .modal-footer .btn-secondary {
+  background-color: #f8f9fa; /* Light color for cancel button */
+  border-color: #ced4da; /* Border color for cancel button */
+  }
+  
+  /* Style for the 'Upload' button */
+  .modal-footer .btn-primary {
+  background-color: #6e3bce; /* Set the color of the upload button */
+  border-color: #4f1ea8; /* Border color to match */
+  }
+  
+  /* Close button styling */
+  .modal-header .btn-close {
+  color: #6e3bce; /* Color of the close button */
+  font-size: 22px; /* Size of the close button */
+  }
+  
+  /* Responsive Design for Modal */
+  @media (max-width: 768px) {
+  .modal-dialog {
+    width: 90%; /* Ensure the modal width is responsive on smaller screens */
+  }
+  }
+  /* Example global or dashboard-specific styles */
+  
+  .modal .btn-custom-upload {
+  background-color: #8a2be2;  /* BlueViolet Color */
+  color: white;
+  border: none;
+  }
+  
+  .modal .btn-custom-upload:hover {
+  background-color: #7a1bc1;  /* Darker BlueViolet on hover */
+  }
+  
+/* Styling for the drag-and-drop area */
+.dropzone {
+  border: 2px dashed #007bff;
+  border-radius: 10px;
+  padding: 20px;
+  text-align: center;
+  font-size: 14px;
+  color: #007bff;
+  cursor: pointer;
+  margin-bottom: 20px;
+}
+
+.dropzone.dragover {
+  border-color: #28a745;
+  background-color: #e9f7e9;
+}
+
+.dropzone p {
+  margin: 0;
+}
+
+/* Modal footer styles to center buttons */
+.modal-footer {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn {
+  border-radius: 5px;
+}
