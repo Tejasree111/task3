@@ -4,6 +4,7 @@ const authRoutes = require('./auth/auth.routes');
 const profileRoutes = require('./profile/profile.routes');
 const productRoutes = require('./product/product.routes');
 const uploadRoutes = require('./upload/upload.routes');
+const importRoutes =require('./import/import.routes');
 const { authenticateUser } = require('../middleware/auth.middleware');
 
 // Public routes
@@ -13,6 +14,7 @@ router.use('/auth', authRoutes);
 router.use('/profile', authenticateUser, profileRoutes);
 router.use('/products', authenticateUser, productRoutes);
 router.use('/upload', authenticateUser, uploadRoutes);
+router.use('/files',authenticateUser,importRoutes);
 
 module.exports = router;
 

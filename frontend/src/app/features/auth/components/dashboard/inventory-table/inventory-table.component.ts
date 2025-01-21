@@ -52,23 +52,19 @@ export class InventoryTableComponent implements OnInit {
   selectedFile: File | null = null;
   isCartView: boolean = false;
   selectedProducts: boolean[] = [];
-  dropdownVisible:boolean=false;
-
+  dropdownVisible: boolean = false;
 
   // Columns filter state
   columnsFilter = {
-  product:false,
-  category: false,  // Whether to filter by category
-  vendor: false,    // Whether to filter by vendor
-  
-  
-};
+    product: false,
+    category: false, // Whether to filter by category
+    vendor: false, // Whether to filter by vendor
+  };
 
-
-selectedCategory: string = '';
-selectedVendor: string = '';
-selectedStatus: string = '';
-searchTerm: string = '';
+  selectedCategory: string = '';
+  selectedVendor: string = '';
+  selectedStatus: string = '';
+  searchTerm: string = '';
 
   constructor(
     private productService: ProductService,
@@ -108,19 +104,23 @@ searchTerm: string = '';
 
   // Add selected products to the cart
   moveToCart(): void {
-    const selectedProducts = this.products.filter(product => product.isSelected);
-    selectedProducts.forEach(product => {
-      const existingProduct = this.cartProducts.find(item => item.product_id === product.id);
+    const selectedProducts = this.products.filter(
+      (product) => product.isSelected
+    );
+    selectedProducts.forEach((product) => {
+      const existingProduct = this.cartProducts.find(
+        (item) => item.product_id === product.id
+      );
       if (existingProduct) {
-        existingProduct.quantity += 1;  // Increment quantity if already in cart
+        existingProduct.quantity += 1; // Increment quantity if already in cart
       } else {
-        this.cartProducts.push({ ...product, quantity: 1 });  // Add new product with quantity 1
+        this.cartProducts.push({ ...product, quantity: 1 }); // Add new product with quantity 1
       }
     });
 
     // Save the updated cart in session storage
     sessionStorage.setItem('cart', JSON.stringify(this.cartProducts));
-    this.loadCartFromSession();  // Reload cart in component
+    this.loadCartFromSession(); // Reload cart in component
   }
 
   // Increase quantity of product in cart
@@ -150,14 +150,15 @@ searchTerm: string = '';
 
   // Handle checkout logic (e.g., submit cart data to backend)
   checkout(): void {
-    console.log('Proceed to checkout with the following cart:', this.cartProducts);
+    console.log(
+      'Proceed to checkout with the following cart:',
+      this.cartProducts
+    );
     // You can send the cart data to the backend for order creation
   }
-  
 
-
-   // Toggle view between All Products and Cart
-   toggleCartView() {
+  // Toggle view between All Products and Cart
+  toggleCartView() {
     this.isCartView = !this.isCartView;
   }
 
@@ -168,7 +169,7 @@ searchTerm: string = '';
         next: (data) => {
           this.vendors = data.vendors;
           this.categories = data.categories;
-          console.log(this.categories);
+          //console.log(this.categories);
         },
         error: (error) => {
           console.error('Error fetching vendors and categories:', error);
@@ -205,43 +206,45 @@ searchTerm: string = '';
     }
   }
 
-  
-addProducts() {
-  if (!this.addProductForm.valid) return;
+  addProducts() {
+    if (!this.addProductForm.valid) return;
 
-  const productData = this.addProductForm.value;
-  const formData = new FormData();
+    const productData = this.addProductForm.value;
+    const formData = new FormData();
 
-  if (this.selectedFile) {
-    formData.append('productImage', this.selectedFile, this.selectedFile.name);
-    this.http.post('http://localhost:3000/api/v1/profile/upload-product', formData)
-      .subscribe({
-        next: (response: any) => {
-          this.selectedImage = response.thumbnailUrl;
-          this.saveProduct(productData, response.productPicUrl);
-        },
-        error: (error) => console.error('Error uploading image', error)
-      });
-  } else {
-    this.saveProduct(productData, null);
-  }
-}
-
-saveProduct(productData: any, imageUrl: string | null) {
-  this.productService.addProduct(productData, imageUrl).subscribe({
-    next: (response) => {
-      console.log('Product added successfully', response);
-      this.toastr.success('Product added successfully!');
-      this.loadProducts(); // Refresh the product list
-    },
-    error: (error) => {
-      console.error('Error adding product', error);
-      this.toastr.error('Failed to add product');
+    if (this.selectedFile) {
+      formData.append(
+        'productImage',
+        this.selectedFile,
+        this.selectedFile.name
+      );
+      this.http
+        .post('http://localhost:3000/api/v1/profile/upload-product', formData)
+        .subscribe({
+          next: (response: any) => {
+            this.selectedImage = response.thumbnailUrl;
+            this.saveProduct(productData, response.productPicUrl);
+          },
+          error: (error) => console.error('Error uploading image', error),
+        });
+    } else {
+      this.saveProduct(productData, null);
     }
-  });
-}
+  }
 
-
+  saveProduct(productData: any, imageUrl: string | null) {
+    this.productService.addProduct(productData, imageUrl).subscribe({
+      next: (response) => {
+        console.log('Product added successfully', response);
+        this.toastr.success('Product added successfully!');
+        this.loadProducts(); // Refresh the product list
+      },
+      error: (error) => {
+        console.error('Error adding product', error);
+        this.toastr.error('Failed to add product');
+      },
+    });
+  }
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();
@@ -272,7 +275,7 @@ saveProduct(productData: any, imageUrl: string | null) {
       }
     }
   }
-
+/*
   uploadFiles(): void {
     if (this.files.length === 0) {
       this.toastr.error('Please select files to upload.');
@@ -284,90 +287,114 @@ saveProduct(productData: any, imageUrl: string | null) {
       formData.append('file', file, file.name); // Append the file(s)
     });
 
-    this.http.post('http://localhost:3000/api/v1/import', formData).subscribe({
+    this.http
+      .post('http://localhost:3000/api/v1/files/import', formData)
+      .subscribe({
+        next: (response: any) => {
+          this.toastr.success('Files uploaded and data imported successfully.');
+          this.loadProducts(); // Refresh the product list
+        },
+        error: (error) => {
+          console.error('Error uploading files', error);
+          this.toastr.error('Failed to upload files.');
+        },
+      });
+  }
+*/
+
+uploadFiles(): void {
+  if (this.files.length === 0) {
+    this.toastr.error('Please select files to upload.');
+    return;
+  }
+
+  const formData = new FormData();
+  this.files.forEach((file) => {
+    formData.append('file', file, file.name);
+  });
+
+  // Convert the selected Excel file into JSON before sending it to the server
+  const reader = new FileReader();
+  reader.onload = (e: any) => {
+    const workbook = XLSX.read(e.target.result, { type: 'binary' });
+    const sheetName = workbook.SheetNames[0];  
+    const worksheet = workbook.Sheets[sheetName];
+    const jsonData = XLSX.utils.sheet_to_json(worksheet);
+    console.log(jsonData);
+
+    // Send the JSON data to the backend
+    this.http.post('http://localhost:3000/api/v1/files/import', jsonData).subscribe({
       next: (response: any) => {
         this.toastr.success('Files uploaded and data imported successfully.');
-        this.loadProducts(); // Refresh the product list
+        this.loadProducts();  // Refresh the product list
       },
       error: (error) => {
         console.error('Error uploading files', error);
         this.toastr.error('Failed to upload files.');
-      },
+      }
     });
-  }
+  };
+  reader.readAsBinaryString(this.files[0]);  // Read the first file
+}
 
   importData(): void {
     this.uploadFiles();
   }
-/*
+
   loadProducts(): void {
     this.productService.getProducts(this.currentPage, this.limit).subscribe({
       next: (data) => {
-        this.products = data.products;
-        console.log(data);
-        this.totalPages = data.totalPages;
+        let filteredProducts: Product[] = data.products;
+        this.totalPages =data.totalPages;
+         // Calculate total pages
+        // Apply search filtering
+        if (this.searchTerm) {
+          filteredProducts = filteredProducts.filter(
+            (product) =>
+              product.product_name.toLowerCase().includes(this.searchTerm) ||
+              product.category_name.toLowerCase().includes(this.searchTerm) ||
+              product.vendors.toLowerCase().includes(this.searchTerm)
+          );
+        }
+
+        // Apply category filter
+        if (this.selectedCategory) {
+          filteredProducts = filteredProducts.filter(
+            (product) => product.category_name === this.selectedCategory
+          );
+        }
+
+        // Apply vendor filter
+        if (this.selectedVendor) {
+          filteredProducts = filteredProducts.filter(
+            (product) => product.vendors === this.selectedVendor
+          );
+        }
+
+        // Apply status filter
+        if (this.selectedStatus !== '') {
+          filteredProducts = filteredProducts.filter(
+            (product) => product.status === this.selectedStatus
+          );
+        }
+
+        this.products = filteredProducts;
+        //this.totalPages = Math.ceil(filteredProducts.length / this.limit);  // Adjust the total pages based on filtered results
       },
       error: (error) => {
         console.error('Error fetching products:', error);
       },
     });
-  }*/
+  }
 
-    loadProducts(): void {
-      this.productService.getProducts(this.currentPage, this.limit).subscribe({
-        next: (data) => {
-          let filteredProducts:Product[] = data.products;
-          this.totalPages = data.totalPages;
-          console.log("total pages:" ,this.totalPages);
-    
-          // Apply search filtering
-          if (this.searchTerm) {
-            filteredProducts = filteredProducts.filter(product =>
-              product.product_name.toLowerCase().includes(this.searchTerm) ||
-              product.category_name.toLowerCase().includes(this.searchTerm) ||
-              product.vendors.toLowerCase().includes(this.searchTerm)
-            );
-          }
-    
-          // Apply category filter
-          if (this.selectedCategory) {
-            filteredProducts = filteredProducts.filter(
-              product => product.category_name === this.selectedCategory
-            );
-          }
-    
-          // Apply vendor filter
-          if (this.selectedVendor) {
-            filteredProducts = filteredProducts.filter(
-              product => product.vendors === this.selectedVendor
-            );
-          }
-    
-          // Apply status filter
-          if (this.selectedStatus !== '') {
-            filteredProducts = filteredProducts.filter(
-              product => product.status === this.selectedStatus
-            );
-          }
-    
-          this.products = filteredProducts;
-          //this.totalPages = Math.ceil(filteredProducts.length / this.limit);  // Adjust the total pages based on filtered results
-        },
-        error: (error) => {
-          console.error('Error fetching products:', error);
-        },
-      });
-    }
-    searchQuery(event: any) {
-      this.searchTerm = event.target.value.toLowerCase();
-      this.loadProducts();
-    }
-    applyFilters(): void {
-      this.loadProducts();  // Re-load products with the filters applied
-    }
-      
+  searchQuery(event: any) {
+    this.searchTerm = event.target.value.toLowerCase();
+    this.loadProducts();
+  }
+  applyFilters(): void {
+    this.loadProducts(); // Re-load products with the filters applied
+  }
 
- 
   // Download selected products
   downloadSelected(): void {
     // Filter selected records
@@ -398,13 +425,12 @@ saveProduct(productData: any, imageUrl: string | null) {
     // Export to Excel
     XLSX.writeFile(workbook, 'Selected_Products.xlsx');
   }
-  
-  goToPage(page: number): void {
-    if (page < 1 || page > this.totalPages) return;
-    this.currentPage = page;
+
+  goToPage(pageNumber: number): void {
+    this.currentPage = pageNumber;
     this.loadProducts();
   }
-  
+
   nextPage(): void {
     if (this.currentPage < this.totalPages) {
       this.currentPage++;
@@ -420,16 +446,16 @@ saveProduct(productData: any, imageUrl: string | null) {
   }
 
   getDisplayedPages(): number[] {
-    const range: number[] = [];
-    const rangeSize = 10; // Number of pages to display around the current page
-    const start = Math.max(this.currentPage - rangeSize, 1);
-    const end = Math.min(this.currentPage + rangeSize, this.totalPages);
+    const pageNumbers: number[] = [];
+    const range = 2; // Number of pages before and after current page to display
 
-    for (let i = start; i <= end; i++) {
-      range.push(i);
+    // Display pages before current page
+    for (let i = this.currentPage - range; i <= this.currentPage + range; i++) {
+      if (i > 0 && i <= this.totalPages) {
+        pageNumbers.push(i);
+      }
     }
-
-    return range;
+    return pageNumbers;
   }
 
   // Select/Deselect all checkboxes
@@ -445,7 +471,6 @@ saveProduct(productData: any, imageUrl: string | null) {
     return this.products.every((product) => product.isSelected);
   }
 
- 
   addProduct() {
     console.log('Add Product');
   }
@@ -497,6 +522,6 @@ saveProduct(productData: any, imageUrl: string | null) {
 
   editProduct(product: any) {
     console.log('Edit Product', product);
-    console.log("console",product)
+    console.log('console', product);
   }
 }
