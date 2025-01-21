@@ -34,7 +34,14 @@ const getProfile = async (req, res) => {
     const decoded=jwt.verify(token,process.env.JWT_SECRET)
     console.log(decoded.id);
     const user = await authService.getUserProfile(decoded.id);
-    res.json(user);
+    console.log(user);
+    res.json( {
+      firstName: user.first_name,
+      lastName: user.last_name,
+      username: user.username,
+      email: user.email,
+      profileImage: user.thumbnail,
+    });
   } catch (err) {
     res.status(500).send('Error fetching user profile');
   }

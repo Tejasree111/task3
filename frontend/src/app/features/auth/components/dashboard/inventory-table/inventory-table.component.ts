@@ -56,7 +56,7 @@ export class InventoryTableComponent implements OnInit {
 
 
   // Columns filter state
-columnsFilter = {
+  columnsFilter = {
   product:false,
   category: false,  // Whether to filter by category
   vendor: false,    // Whether to filter by vendor
@@ -65,7 +65,7 @@ columnsFilter = {
 };
 
 
-  selectedCategory: string = '';
+selectedCategory: string = '';
 selectedVendor: string = '';
 selectedStatus: string = '';
 searchTerm: string = '';
@@ -497,5 +497,6 @@ saveProduct(productData: any, imageUrl: string | null) {
 
   editProduct(product: any) {
     console.log('Edit Product', product);
+    console.log("console",product)
   }
 }

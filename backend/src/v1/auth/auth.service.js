@@ -15,13 +15,13 @@ const login = async ({ email, password }) => {
     throw new Error('Invalid credentials');
   }
   
-  const accessToken = jwt.sign({ id: user.user_id }, process.env.JWT_SECRET);
+  const accessToken = jwt.sign({ id: user.user_id, username: user.username }, process.env.JWT_SECRET);
   return accessToken;
 };
 
 const getUserProfile = async (userId) => {
   console.log(userId);
-  const user = await authQueries.getUserById(userId);
+  return await authQueries.getUserById(userId);
   console.log(user);
   return {
     firstName: user.first_name,

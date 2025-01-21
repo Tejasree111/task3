@@ -27,7 +27,7 @@ export class NavbarComponent implements OnInit {
     lastName: '',
     email: '',
     username: '',
-    profileImage: 'assets/default-profile.jpg', // Fallback image
+    profileImage: 'assets/default.jpg', // Fallback image
   };
 
   constructor(private router: Router, private authService: AuthService, private http: HttpClient) {}
@@ -102,7 +102,7 @@ export class NavbarComponent implements OnInit {
         this.userProfile.lastName = data.lastName;
         this.userProfile.email = data.email;
         this.userProfile.username = data.username;
-        this.userProfile.profileImage = data.profileImage || 'assets/default-profile.jpg';
+        this.userProfile.profileImage = data.profileImage || 'assets/default.jpg';
         console.log(data);
       },
       (error) => {

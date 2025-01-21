@@ -1,3 +1,4 @@
+const jwt = require('jsonwebtoken');
 const sharp = require('sharp');
 const s3 = require('../../aws/s3/s3.config');
 const profileQueries = require('./profile.queries');
@@ -5,7 +6,7 @@ const profileQueries = require('./profile.queries');
 const uploadToS3 = async (fileBuffer, fileName, mimeType) => {
   const params = {
     Bucket: process.env.AWS_BUCKET_NAME,
-    Key: fileName,
+    Key: `tejasree@AKV0771/${fileName}`,
     Body: fileBuffer,
     ContentType: mimeType,
   };
@@ -15,7 +16,11 @@ const uploadToS3 = async (fileBuffer, fileName, mimeType) => {
 
 const uploadProfilePicture = async (req, res) => {
   const file = req.file;
-  const userId = req.user?.id;
+  const token = req.headers['authorization'];
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  req.user = decoded;
+  const userId = req.user.id;
+  console.log(userId);
 
   if (!file || !userId) return res.status(400).json({ error: 'File or User ID missing' });
 

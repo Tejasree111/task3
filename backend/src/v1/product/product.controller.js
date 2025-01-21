@@ -79,7 +79,7 @@ const addProduct = async (req, res) => {
 
   try {
     // Insert product into the products table
-    const [newProduct] = await trx('products').insert({
+     const [newProduct] = await trx('products').insert({
       product_name: productData.productName,
       category_id: productData.category,
       quantity_in_stock: productData.quantity,
