@@ -71,13 +71,18 @@
           (dragleave)="onDragLeave($event)"
           (drop)="onFileDrop($event)"
         >
-          <p class="text-muted">Drag and drop your photo here, or</p>
+          <p class="text-muted">Drag and drop your photo here, or</p><i class="bi bi-cloud-arrow-up"></i>
           <input
             type="file"
             class="form-control"
             (change)="onFileChange($event)"
             accept="image/*"
           />
+              <!-- Display selected image (if any) -->
+  <div class="text-center mb-3">
+    <img *ngIf="selectedImage" [src]="userProfile.profileImage" alt="Selected Profile Image" class="img-fluid" width="100" height="100" />
+    <p *ngIf="!selectedImage" class="text-muted">No image selected</p>
+  </div>
         </div>
       </div>
 

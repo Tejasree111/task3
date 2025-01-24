@@ -17,6 +17,7 @@ const uploadToS3 = async (fileBuffer, fileName, mimeType,userId) => {
 };
 
 // Upload file controller
+/*
 const uploadFile = async (req, res) => {
   const file = req.file;
   const token = req.headers['authorization'];
@@ -28,7 +29,16 @@ const uploadFile = async (req, res) => {
 
   try {
     const fileName = `${userId}_${Date.now()}_${file.originalname}`;
-    const fileBuffer = await sharp(file.buffer).resize(800, 800).toBuffer(); 
+    //const fileBuffer = await sharp(file.buffer).resize(800, 800).toBuffer(); 
+     // Handle image files with sharp
+     if (file.mimetype.startsWith('image/')) {
+      fileBuffer = await sharp(file.buffer).resize(800, 800).toBuffer(); 
+    } else if (file.mimetype === 'application/pdf') {
+      // Handle PDF files (just upload the PDF as is)
+      fileBuffer = file.buffer;
+    } else {
+      return res.status(400).json({ error: 'Unsupported file type' });
+    }
     const fileUrl = await uploadToS3(fileBuffer, fileName, file.mimetype,userId);
 
     res.status(200).json({ message: 'File uploaded successfully', fileUrl });
@@ -36,7 +46,48 @@ const uploadFile = async (req, res) => {
     console.error(err);
     res.status(500).json({ error: 'Error uploading file' });
   }
+};*/
+
+const uploadFile = async (req, res) => {
+  const file = req.file;
+  const token = req.headers['authorization'];
+  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  req.user = decoded;
+  const userId = req.user.id;
+
+  if (!file || !userId) {
+    return res.status(400).json({ error: 'File or User ID missing' });
+  }
+
+  try {
+    const fileName = `${userId}_${Date.now()}_${file.originalname}`;
+    let fileBuffer;
+
+    if (file.mimetype.startsWith('image/')) {
+      // Handle image files with sharp
+      fileBuffer = await sharp(file.buffer).resize(800, 800).toBuffer();
+    } else if (file.mimetype === 'application/pdf') {
+      // Handle PDF files (just upload the PDF as is)
+      fileBuffer = file.buffer;
+    } else if (
+      file.mimetype === 'application/vnd.ms-excel' || // For .xls
+      file.mimetype === 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' // For .xlsx
+    ) {
+      // Handle Excel files (upload as is)
+      fileBuffer = file.buffer;
+    } else {
+      return res.status(400).json({ error: 'Unsupported file type' });
+    }
+
+    const fileUrl = await uploadToS3(fileBuffer, fileName, file.mimetype, userId);
+
+    res.status(200).json({ message: 'File uploaded successfully', fileUrl });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error uploading file' });
+  }
 };
+
 
 // Fetch uploaded files from S3
 /*const getUploadedFiles = async (req, res) => {

@@ -10,15 +10,19 @@ export class ProductService {
 
   constructor(private http: HttpClient) {}
 
-    getProducts(page: number, limit: number): Observable<any> {
+    getProducts(page: number, limit: number,searchTerm:string): Observable<any> {
       return this.http.get<any>(
-        `${this.apiUrl}/products?page=${page}&limit=${limit}`
+        `${this.apiUrl}/products?page=${page}&limit=${limit}&searchTerm=${searchTerm}`
       );
     }
 
     addProduct(productData: any,selectedImage:string | null): Observable<any> {
      const product={productData,selectedImage};
       return this.http.post<any>(`${this.apiUrl}/products/add`, product );
+    }
+
+    updateProduct(product: any): Observable<any> {
+      return this.http.put<any>(`${this.apiUrl}/products/${product.product_id}`, product);
     }
 
     updateProductStatus(product: any): Observable<any> {

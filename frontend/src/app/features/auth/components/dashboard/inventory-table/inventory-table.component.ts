@@ -5,6 +5,7 @@ import { jsPDF } from 'jspdf';
 import * as XLSX from 'xlsx';
 import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+
 interface Product {
   id: number;
   product_name: string;
@@ -13,8 +14,10 @@ interface Product {
   quantity_in_stock: number;
   unit_price: number;
   status: string;
-  vendors: string;
+  //vendors:vendor[];
+  vendors: string[];
   isSelected?: boolean;
+  isEditing?:boolean;
 }
 
 @Component({
@@ -23,6 +26,7 @@ interface Product {
   styleUrls: ['./inventory-table.component.css'],
 })
 export class InventoryTableComponent implements OnInit {
+  vendors:any[]=[];
   products: {
     id: number;
     product_name: string;
@@ -31,28 +35,32 @@ export class InventoryTableComponent implements OnInit {
     quantity_in_stock: number;
     unit_price: number;
     status: string;
-    vendors: string;
+    vendors: string[];
     isSelected?: boolean;
+    isEditing?:boolean;
   }[] = [];
   isDragging: boolean = false;
   files: File[] = [];
   cartProducts: any[] = [];
-  totalVendorsCount = 3;
+  totalVendorsCount :number =0;
   totalPages: number = 0;
   currentPage: number = 1;
   limit: number = 10;
   addProductForm: FormGroup;
   //vendors and categories
-  vendors: any[] = [];
+  //vendors: any[] = [];
   selectedVendors: { [key: string]: boolean } = {};
   categories: any[] = [];
   selectedImage: string | null = null;
   selectedVendorId: number | null = null;
   selectedCategoryId: number | null = null;
   selectedFile: File | null = null;
-  isCartView: boolean = false;
-  selectedProducts: boolean[] = [];
+  isCartView: boolean = true;
+  //selectedProducts: any|any[];
+  selectedProducts:Product[]=[];
   dropdownVisible: boolean = false;
+  
+  
 
   // Columns filter state
   columnsFilter = {
@@ -78,7 +86,7 @@ export class InventoryTableComponent implements OnInit {
       vendor: ['', [Validators.required]],
       quantity: ['', [Validators.required, Validators.min(1)]],
       unit: ['', [Validators.required]],
-      status: ['1', [Validators.required]], // default to active
+      status: ['', [Validators.required]], // default to active
       productImage: [''],
     });
   }
@@ -87,8 +95,16 @@ export class InventoryTableComponent implements OnInit {
     this.loadProducts();
     this.loadVendorsAndCategories();
     this.loadCartFromSession();
-    this.selectedProducts = new Array(this.cartProducts.length).fill(false);
+    //this.clearCartOnPageLoad();
+    this.resetModalSelections();
   }
+
+  
+
+ resetModalSelections(): void {
+  this.selectedProducts = []; // Reset the selected products for the modal
+  
+}
   // Toggle visibility of the dropdown menu
   toggleDropdown(): void {
     this.dropdownVisible = !this.dropdownVisible;
@@ -101,63 +117,89 @@ export class InventoryTableComponent implements OnInit {
       this.cartProducts = JSON.parse(cart);
     }
   }
+  moveToCartModal(): void {
+    this.selectedProducts = this.products.filter((product) => product.isSelected);
+    console.log("Selected Products for Modal:", this.selectedProducts);
+    
+  }
 
-  // Add selected products to the cart
+  // Move selected products from the modal to the cart
   moveToCart(): void {
-    const selectedProducts = this.products.filter(
-      (product) => product.isSelected
-    );
-    selectedProducts.forEach((product) => {
+    this.selectedProducts.forEach((product: any) => {
+      // Check if the product is already in the cart
       const existingProduct = this.cartProducts.find(
-        (item) => item.product_id === product.id
+        (item) => item.product_id === product.product_id
       );
+console.log("existing products:",existingProduct)
       if (existingProduct) {
-        existingProduct.quantity += 1; // Increment quantity if already in cart
+        // Increase quantity if the product is already in the cart
+        existingProduct.quantity += 1;
       } else {
-        this.cartProducts.push({ ...product, quantity: 1 }); // Add new product with quantity 1
+        // Add the product to the cart if not already present
+        this.cartProducts.push({
+          ...product,
+          quantity: 1,
+        });
       }
     });
-
-    // Save the updated cart in session storage
-    sessionStorage.setItem('cart', JSON.stringify(this.cartProducts));
-    this.loadCartFromSession(); // Reload cart in component
+    this.updateCartInSession();
+    this.loadCartFromSession();
+    this.resetModalSelections(); // Clear the modal selections after moving to cart
   }
+  //modal related
+increaseQuantityModal(index: number): void {
+  this.selectedProducts[index].quantity_in_stock += 1;
+}
 
-  // Increase quantity of product in cart
-  increaseQuantity(index: number): void {
-    this.cartProducts[index].quantity += 1;
+decreaseQuantityModal(index: number): void {
+  if (this.selectedProducts[index].quantity_in_stock > 1) {
+    this.selectedProducts[index].quantity_in_stock -= 1;
+  }
+}
+
+removeFromCartModal(index: number): void {
+  this.selectedProducts.splice(index, 1);
+}
+
+//cart table related
+increaseQuantity(index: number): void {
+  this.cartProducts[index].quantity += 1;
+  this.updateCartInSession();
+}
+
+decreaseQuantity(index: number): void {
+  if (this.cartProducts[index].quantity > 1) {
+    this.cartProducts[index].quantity -= 1;
     this.updateCartInSession();
   }
-
-  // Decrease quantity of product in cart
-  decreaseQuantity(index: number): void {
-    if (this.cartProducts[index].quantity > 1) {
-      this.cartProducts[index].quantity -= 1;
-      this.updateCartInSession();
-    }
+}
+removeFromCart(index: number): void {
+  const productToDelete = this.cartProducts[index];
+  
+  // Remove product from the cart
+  this.cartProducts.splice(index, 1);
+  // Remove product from the original products array (if needed)
+  const productIndex = this.products.findIndex(
+    (product) => product.id === productToDelete.id
+  );
+  if (productIndex !== -1) {
+    this.products.splice(productIndex, 1);
   }
 
-  // Remove product from cart
-  removeFromCart(index: number): void {
-    this.cartProducts.splice(index, 1);
-    this.updateCartInSession();
-  }
+  this.updateCartInSession();  // Update session storage with the new cart
+}
 
-  // Update the cart in session storage
   updateCartInSession(): void {
     sessionStorage.setItem('cart', JSON.stringify(this.cartProducts));
   }
 
-  // Handle checkout logic (e.g., submit cart data to backend)
   checkout(): void {
     console.log(
       'Proceed to checkout with the following cart:',
       this.cartProducts
     );
-    // You can send the cart data to the backend for order creation
   }
 
-  // Toggle view between All Products and Cart
   toggleCartView() {
     this.isCartView = !this.isCartView;
   }
@@ -169,13 +211,16 @@ export class InventoryTableComponent implements OnInit {
         next: (data) => {
           this.vendors = data.vendors;
           this.categories = data.categories;
-          //console.log(this.categories);
+          console.log(this.vendors)
+          console.log("categories",this.categories);
+          this.totalVendorsCount = this.vendors.length;
         },
         error: (error) => {
           console.error('Error fetching vendors and categories:', error);
         },
       });
   }
+      
 
   productToDelete: any = null;
 
@@ -199,12 +244,18 @@ export class InventoryTableComponent implements OnInit {
       });
     }
   }
-  onImageSelect(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      this.selectedFile = file;
+
+    onImageSelect(event: any) {
+      const file = event.target.files[0];
+      if (file) {
+        this.selectedFile = file;
+        const reader = new FileReader();
+        reader.onload = () => {
+          this.selectedImage = reader.result as string;  
+        };
+        reader.readAsDataURL(file);
+      }
     }
-  }
 
   addProducts() {
     if (!this.addProductForm.valid) return;
@@ -223,6 +274,7 @@ export class InventoryTableComponent implements OnInit {
         .subscribe({
           next: (response: any) => {
             this.selectedImage = response.thumbnailUrl;
+            console.log(response.productPicUrl);
             this.saveProduct(productData, response.productPicUrl);
           },
           error: (error) => console.error('Error uploading image', error),
@@ -235,6 +287,7 @@ export class InventoryTableComponent implements OnInit {
   saveProduct(productData: any, imageUrl: string | null) {
     this.productService.addProduct(productData, imageUrl).subscribe({
       next: (response) => {
+        console.log(imageUrl);
         console.log('Product added successfully', response);
         this.toastr.success('Product added successfully!');
         this.loadProducts(); // Refresh the product list
@@ -245,6 +298,7 @@ export class InventoryTableComponent implements OnInit {
       },
     });
   }
+  
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();
@@ -275,32 +329,6 @@ export class InventoryTableComponent implements OnInit {
       }
     }
   }
-/*
-  uploadFiles(): void {
-    if (this.files.length === 0) {
-      this.toastr.error('Please select files to upload.');
-      return;
-    }
-
-    const formData = new FormData();
-    this.files.forEach((file) => {
-      formData.append('file', file, file.name); // Append the file(s)
-    });
-
-    this.http
-      .post('http://localhost:3000/api/v1/files/import', formData)
-      .subscribe({
-        next: (response: any) => {
-          this.toastr.success('Files uploaded and data imported successfully.');
-          this.loadProducts(); // Refresh the product list
-        },
-        error: (error) => {
-          console.error('Error uploading files', error);
-          this.toastr.error('Failed to upload files.');
-        },
-      });
-  }
-*/
 
 uploadFiles(): void {
   if (this.files.length === 0) {
@@ -340,54 +368,109 @@ uploadFiles(): void {
   importData(): void {
     this.uploadFiles();
   }
+/*
+loadProducts(): void {
+  this.productService.getProducts(this.currentPage, this.limit).subscribe({
+    next: (data) => {
 
-  loadProducts(): void {
-    this.productService.getProducts(this.currentPage, this.limit).subscribe({
-      next: (data) => {
-        let filteredProducts: Product[] = data.products;
-        this.totalPages =data.totalPages;
-         // Calculate total pages
-        // Apply search filtering
-        if (this.searchTerm) {
-          filteredProducts = filteredProducts.filter(
-            (product) =>
-              product.product_name.toLowerCase().includes(this.searchTerm) ||
-              product.category_name.toLowerCase().includes(this.searchTerm) ||
-              product.vendors.toLowerCase().includes(this.searchTerm)
-          );
+      //const products = sessionStorage.getItem('products');
+    
+      let filteredProducts: Product[] = data.products;
+
+      // Ensure 'vendors' is always an array of strings (in case it's returned as a single string)
+      filteredProducts = filteredProducts.map(product => {
+        if (typeof product.vendors === 'string') {
+          product.vendors = [product.vendors];  // Convert single string to array
         }
+        return product;
+      });
 
-        // Apply category filter
-        if (this.selectedCategory) {
-          filteredProducts = filteredProducts.filter(
-            (product) => product.category_name === this.selectedCategory
-          );
+      this.totalPages = data.totalPages;
+
+      // Apply search filtering
+      if (this.searchTerm) {
+        filteredProducts = filteredProducts.filter(
+          (product) =>
+            product.product_name.toLowerCase().includes(this.searchTerm) ||
+            product.category_name.toLowerCase().includes(this.searchTerm) ||
+            product.vendors.some((vendor: string) => vendor.toLowerCase().includes(this.searchTerm)) // Explicitly type vendor as string
+        );
+      }
+
+      // Apply category filter
+      if (this.selectedCategory) {
+        filteredProducts = filteredProducts.filter(
+          (product) => product.category_name === this.selectedCategory
+        );
+      }
+
+      // Apply vendor filter
+      if (this.selectedVendor) {
+        filteredProducts = filteredProducts.filter(
+          (product) => product.vendors.includes(this.selectedVendor)  // vendors is an array now
+        );
+      }
+
+      // Apply status filter
+      if (this.selectedStatus !== '') {
+        filteredProducts = filteredProducts.filter(
+          (product) => product.status === this.selectedStatus
+        );
+      }
+
+      this.products = filteredProducts;
+    },
+    error: (error) => {
+      console.error('Error fetching products:', error);
+    },
+  });
+}*/
+
+loadProducts(): void {
+  this.productService.getProducts(this.currentPage, this.limit, this.searchTerm).subscribe({
+    next: (data) => {
+      let filteredProducts: Product[] = data.products;
+
+      // Ensure 'vendors' is always an array of strings (in case it's returned as a single string)
+      filteredProducts = filteredProducts.map(product => {
+        if (typeof product.vendors === 'string') {
+          product.vendors = [product.vendors];  // Convert single string to array
         }
+        return product;
+      });
 
-        // Apply vendor filter
-        if (this.selectedVendor) {
-          filteredProducts = filteredProducts.filter(
-            (product) => product.vendors === this.selectedVendor
-          );
-        }
+      this.totalPages = data.totalPages;
 
-        // Apply status filter
-        if (this.selectedStatus !== '') {
-          filteredProducts = filteredProducts.filter(
-            (product) => product.status === this.selectedStatus
-          );
-        }
+      // Apply category filter
+      if (this.selectedCategory) {
+        filteredProducts = filteredProducts.filter(
+          (product) => product.category_name === this.selectedCategory
+        );
+      }
 
-        this.products = filteredProducts;
-        //this.totalPages = Math.ceil(filteredProducts.length / this.limit);  // Adjust the total pages based on filtered results
-      },
-      error: (error) => {
-        console.error('Error fetching products:', error);
-      },
-    });
-  }
+      // Apply vendor filter
+      if (this.selectedVendor) {
+        filteredProducts = filteredProducts.filter(
+          (product) => product.vendors.includes(this.selectedVendor)  // vendors is an array now
+        );
+      }
 
+      // Apply status filter
+      if (this.selectedStatus !== '') {
+        filteredProducts = filteredProducts.filter(
+          (product) => product.status === this.selectedStatus
+        );
+      }
+
+      this.products = filteredProducts;
+    },
+    error: (error) => {
+      console.error('Error fetching products:', error);
+    },
+  });
+}
   searchQuery(event: any) {
+
     this.searchTerm = event.target.value.toLowerCase();
     this.loadProducts();
   }
@@ -445,17 +528,11 @@ uploadFiles(): void {
     }
   }
 
-  getDisplayedPages(): number[] {
-    const pageNumbers: number[] = [];
-    const range = 2; // Number of pages before and after current page to display
 
-    // Display pages before current page
-    for (let i = this.currentPage - range; i <= this.currentPage + range; i++) {
-      if (i > 0 && i <= this.totalPages) {
-        pageNumbers.push(i);
-      }
-    }
-    return pageNumbers;
+  getVendorClass(vendor: string): string {
+    const vendorClasses = ['vendor-btn-purple', 'vendor-btn-blue', 'vendor-btn-green', 'vendor-btn-orange'];
+    const index = this.vendors.indexOf(vendor);
+    return vendorClasses[index % vendorClasses.length];
   }
 
   // Select/Deselect all checkboxes
@@ -464,6 +541,15 @@ uploadFiles(): void {
     this.products.forEach((product) => {
       product.isSelected = isChecked;
     });
+  }
+
+  getPages(): number[] {
+    let pages = [];
+    // Loop from 1 to totalPages to create page buttons dynamically
+    for (let i = 1; i <= this.totalPages; i++) {
+      pages.push(i);
+    }
+    return pages;
   }
 
   // Check if all products are selected
@@ -477,10 +563,12 @@ uploadFiles(): void {
 
   viewAll() {
     console.log('View All');
+    this.isCartView = true; 
   }
 
   viewCart() {
     console.log('View Cart');
+    this.isCartView = false;
   }
 
   openFilters() {
@@ -519,9 +607,31 @@ uploadFiles(): void {
     const filename = `${product.product_name.replace(/\s+/g, '_')}.pdf`;
     doc.save(filename);
   }
-
-  editProduct(product: any) {
-    console.log('Edit Product', product);
-    console.log('console', product);
-  }
+ 
+    editProduct(product: any) {
+      product.isEditing = true;
+      product.editedProduct = { ...product };  // Save the original state of the product before editing
+    }
+    
+    cancelEdit(product: any) {
+      Object.assign(product, product.editedProduct);
+      product.isEditing = false;
+      console.log("cancel triggered")
+      // Restore the original product state
+      
+    }
+    
+    savesProduct(product: any) {
+      // Update product via the service and save changes
+      this.productService.updateProduct(product).subscribe(
+        (response) => {
+          product.isEditing = false;
+          this.toastr.success('Product updated successfully');
+        },
+        (error) => {
+          this.toastr.error('Failed to update product');
+        }
+      );
+    }
+    
 }

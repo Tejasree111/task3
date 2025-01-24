@@ -13,6 +13,7 @@ import { NavbarComponent } from './features/auth/components/dashboard/navbar/nav
 import { HttpInterceptorService } from './core/interceptors/httpinterceptor';
 import { InventoryTableComponent } from './features/auth/components/dashboard/inventory-table/inventory-table.component';
 import { FilesUploadComponent } from './features/auth/components/dashboard/files-upload/files-upload.component';
+import { EncryptionInterceptor } from './core/interceptors/encryption.interceptor';
 
 @NgModule({
   declarations: [
@@ -45,6 +46,11 @@ import { FilesUploadComponent } from './features/auth/components/dashboard/files
       provide: HTTP_INTERCEPTORS,
       useClass: HttpInterceptorService,
       multi: true // This ensures multiple interceptors can be used
+    },
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: EncryptionInterceptor,
+      multi: true 
     }
   ],
   bootstrap: [AppComponent]

@@ -21,6 +21,8 @@ export class NavbarComponent implements OnInit {
   isModalOpen: boolean = false;
   isDropdownOpen = false;
   selectedFile: File | null = null;
+  selectedImage: string | null = null;
+
 
   userProfile: UserProfile = {
     firstName: '',
@@ -48,6 +50,7 @@ export class NavbarComponent implements OnInit {
     const file = event.target.files[0];
     if (file) {
       this.selectedFile = file;
+      this.selectedImage = URL.createObjectURL(file);
     }
   }
 
@@ -65,6 +68,7 @@ export class NavbarComponent implements OnInit {
     event.preventDefault();
     if (event.dataTransfer?.files.length) {
       this.selectedFile = event.dataTransfer.files[0];
+      this.selectedImage = URL.createObjectURL(this.selectedFile);
     }
   }
 

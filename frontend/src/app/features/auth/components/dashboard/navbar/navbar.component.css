@@ -161,5 +161,8 @@ width: 90%; /* Modal width is reduced for smaller screens */
 .close-button{
 color: black;
 }
-
+.bi-cloud-arrow-up{
+  color: #7a1bc1;
+  font-size: 32px;
+}
 

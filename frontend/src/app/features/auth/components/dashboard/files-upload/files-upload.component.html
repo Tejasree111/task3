@@ -4,11 +4,13 @@
     <button class="btn" (click)="downloadAll()">Download All</button>
     <button class="btn" (click)="openModal()">Upload</button>
   </div>
+  <hr>
 
   <div class="file-list">
     <div *ngFor="let file of uploadedFiles">
       <input type="checkbox" id="{{ file.name }}" (change)="toggleFileSelection(file.name)" />
-      <label for="{{ file.name }}">{{ file.name }}</label>
+      <label for="{{ file.name }}" (click)="previewFile(file.url)">{{ file.name }}</label>
+      <hr>
     </div>
   </div>
 </div>
@@ -20,6 +22,29 @@
     <button (click)="closeModal()">Cancel</button>
   </div>
 </div>
+
+<!-- Modal with File Preview -->
+<div class="modal preview-modal" *ngIf="isPreviewOpen" style="display: block;">
+  <div class="modal-content preview-div">
+    <button class="preview-button" (click)="closeModal()"><i class="bi bi-x-lg"></i></button>
+
+    <!-- File Preview Section in Modal -->
+    <h5>File Preview</h5>
+    <div *ngIf="previewType === 'image'">
+      <img [src]="previewSrc" alt="File Preview" style="max-width: 100%; height: auto;" />
+    </div>
+    <div *ngIf="previewType === 'text'">
+      <pre>{{ previewSrc }}</pre>
+    </div>
+    <div *ngIf="previewType === 'pdf'">
+      <embed [src]="selectedFileUrl" type="application/pdf" width="100%" height="500px">
+    </div>
+    <div  *ngIf="previewType === 'pdf'">
+      <iframe [src]="selectedFileUrl" width="100%" height="600px"></iframe>
+    </div>
+  </div>
+</div>
+
 
 <!-- Modal for File upload -->
 <div
@@ -48,7 +73,7 @@
           (dragleave)="onDragLeave($event)"
           (drop)="onDrop($event)"
         >
-          <p class="text-muted">Drag and drop your files here, or</p>
+          <p class="text-muted">Drag and drop your files here, or</p><i class="bi bi-cloud-arrow-up"></i>
         </div>
         <input
           type="file"

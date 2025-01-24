@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-files-upload',
@@ -11,8 +13,12 @@ export class FilesUploadComponent implements OnInit {
   selectedFile: File | null = null;
   uploadedFiles: any[] = [];
   selectedFiles: string[] = [];
+  selectedFileUrl:SafeUrl='';
+  isPreviewOpen:boolean =false;
+  previewSrc: string | ArrayBuffer | null = null; // For preview
+  previewType: string = ''; // For file type (image, text, pdf)
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient,private santize:DomSanitizer) { }
 
   ngOnInit(): void {
     this.fetchUploadedFiles();
@@ -39,11 +45,13 @@ export class FilesUploadComponent implements OnInit {
   // Open the modal for file selection
   openModal() {
     this.isModalOpen = true;
+   
   }
 
   // Close the modal
   closeModal() {
     this.isModalOpen = false;
+    this.isPreviewOpen=false;
   }
 
   // Handle file drag over event
@@ -101,27 +109,46 @@ export class FilesUploadComponent implements OnInit {
     }
   }
 
-  // Download selected files as a zip
-  /*
-  downloadAll() {
-    if (this.selectedFiles.length > 0) {
-      this.http.post('http://localhost:3000/api/v1/upload/download', { fileNames: this.selectedFiles }, { responseType: 'blob' }).subscribe(blob => {
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'files.zip'; // Specify the name of the downloaded zip file
-        link.click(); // Trigger the download
-      });
-    } else if (this.uploadedFiles.length > 0) {
-      // If no files are selected, download all files
-      const allFileNames = this.uploadedFiles.map(file => file.name);
-      this.http.post('http://localhost:3000/api/v1/upload/download', { fileNames: allFileNames }, { responseType: 'blob' }).subscribe(blob => {
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = 'files.zip'; // Specify the name of the downloaded zip file
-        link.click(); // Trigger the download
-      });
+   // Show preview when a file is clicked
+   previewFile(url: string) {
+    this.isPreviewOpen=true;
+    console.log(this.isPreviewOpen);
+    this.previewType=this.getFileType(url);
+    this.previewSrc=url;
+    if(this.previewType==='xlsx')
+    {
+       const officeViewerBaseUrl = 'https://view.officeapps.live.com/op/view.aspx?src=';
+    const officeUrl=`${officeViewerBaseUrl}${encodeURIComponent(url)}`;
+    this.selectedFileUrl=this.santize.bypassSecurityTrustResourceUrl(officeUrl)
+    console.log(this.selectedFileUrl);
     }
-  }*/
+    else
+    this.selectedFileUrl=this.santize.bypassSecurityTrustResourceUrl(url)
+  }
+/*
+  getOfficeViewerUrl(fileUrl: string): void {
+    // Ensure the file URL is publicly accessible
+    const officeViewerBaseUrl = 'https://view.officeapps.live.com/op/embed.aspx?src=';
+    const officeUrl=`${officeViewerBaseUrl}${encodeURIComponent(fileUrl)}`;
+    this.selectedFileUrl=this.santize.bypassSecurityTrustResourceUrl(officeUrl)
+  }
+*/
+  // Determine the type of file (image, text, pdf)
+  getFileType(fileType: string): string {
+    const ext=fileType.split('.').pop()?.toLowerCase();
+    if (ext==='jpg' || ext==='png' || ext==='jpeg') {
+      return 'image';
+    } else if (ext==='xlsx') {
+      return 'xlsx';
+    } else if (ext==='xls') {
+      
+      return 'xls';
+    }else if (ext==='pdf') {
+      return 'pdf';
+    }
+    return 'unknown';
+  }
+
 
     downloadAll() {
       if (this.selectedFiles.length === 1) {
@@ -161,4 +188,5 @@ export class FilesUploadComponent implements OnInit {
     link.download = fileUrl.split('/').pop()!;
     link.click();
   }
+
 }
