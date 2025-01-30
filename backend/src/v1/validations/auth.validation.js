@@ -14,7 +14,7 @@ const signupSchema = Joi.object({
   }),
   email: Joi.string().email().required().messages({
     'string.email': 'A valid email address is required',
-    'any.required': 'Email is required',
+    'any.required': 'Email is required', 
   }),
   first_name: Joi.string().required().messages({
     'any.required': 'First name is required',

@@ -15,8 +15,8 @@ exports.importData = async (req, res) => {
         // If the category does not exist, create a new one
         category = await knex('categories').insert({
           category_name: product.category_name,
-          description: product.category_description || '',  // Assuming there might be a description
-          status: '1'  // Active
+          description: product.category_description || '',  
+          status:'1'  // Active
         }).returning('*');
       }
 
@@ -32,7 +32,7 @@ exports.importData = async (req, res) => {
           postal_code: product.vendor_postal_code || '',
           country: product.vendor_country || '',
           phone: product.vendor_phone || '',
-          status: '1'  // Active
+          status:'1'  // Active
         });
       }
 
@@ -46,16 +46,15 @@ exports.importData = async (req, res) => {
           quantity_in_stock: product.quantity_in_stock || 0,
           unit_price: product.unit_price || 0,
           product_image: product.product_image || '', // Assuming product image is passed
-          status: '1'  // Active
+          status:'1'  // Active
         });
       }
   console.log("existing product",existingProduct);
-
       // Optionally, associate the product with the vendor
       await knex('product_to_vendor').insert({
         vendor_id: vendor.vendor_id,
         product_id: existingProduct.product_id,
-        status: '1'  // Active
+        status:'1'  // Active
       });
     }
 

@@ -102,7 +102,7 @@
   font-size: 16px;
 }
 .table-buttons-save button{
-  padding: 0px;
+  padding: 1px;
 }
 /* Table Cell Status */
 .actives {
@@ -368,6 +368,7 @@ input[type="number"]:disabled {
   color: #7a1bc1;
   font-size: 32px;
 }
+
 .delete-modal-buttons{
   display: flex;
   justify-content: space-between;
@@ -376,4 +377,19 @@ input[type="number"]:disabled {
   position: absolute;
   left: 35%;
   width: 400px;
+}
+.search-wrapper {
+  position: relative;
+}
+
+.search-wrapper input {
+  padding-left: 30px; /* Space for the search icon */
+}
+
+.search-wrapper i {
+  position: absolute;
+  left: 10px; /* Adjust this value if needed */
+  top: 50%;
+  transform: translateY(-50%); /* Centers the icon vertically */
+  color: #888; /* Icon color */
 }

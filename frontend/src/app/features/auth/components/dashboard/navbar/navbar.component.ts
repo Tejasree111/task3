@@ -56,12 +56,12 @@ export class NavbarComponent implements OnInit {
 
   onDragOver(event: DragEvent): void {
     event.preventDefault();
-    event.stopPropagation();
+    //event.stopPropagation();
   }
   
   onDragLeave(event: DragEvent): void {
     event.preventDefault();
-    event.stopPropagation();
+    //event.stopPropagation();
   }
   
   onFileDrop(event: DragEvent): void {
@@ -86,12 +86,13 @@ export class NavbarComponent implements OnInit {
       next: (response: any) => {
         console.log('Profile picture uploaded successfully', response);
         this.userProfile.profileImage=response.profilePicUrl;
-        this.closeModal();
+        //this.closeModal();
       },
       error: (error) => {
         console.error('Error uploading profile picture', error);
       },
     });
+    this.closeModal();
   }
 
   toggleDropdown(): void {
@@ -102,17 +103,20 @@ export class NavbarComponent implements OnInit {
   fetchUserProfile(): void {
     this.authService.getUserProfile().subscribe(
       (data) => {
+        sessionStorage.setItem('user_id',data.user_id);
         this.userProfile.firstName = data.firstName;
         this.userProfile.lastName = data.lastName;
         this.userProfile.email = data.email;
         this.userProfile.username = data.username;
         this.userProfile.profileImage = data.profileImage || 'assets/default.jpg';
         console.log(data);
+        this.authService.setUser(data.user_id);
       },
       (error) => {
         console.error('Error fetching user profile:', error);
       }
     );
+    
   }
   logout(): void {
     sessionStorage.removeItem('authToken');

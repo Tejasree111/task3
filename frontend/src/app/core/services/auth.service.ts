@@ -10,7 +10,8 @@ import { ToastrService } from 'ngx-toastr';
 export class AuthService {
   private apiUrl = 'http://localhost:3000/api/v1/auth';
   private tokenKey = 'authToken';  // Key for session storage
-  
+  private refreshTokenKey = 'refreshToken';
+  private user_id='';
 
   constructor(
     private http: HttpClient, 
@@ -22,12 +23,16 @@ export class AuthService {
 login(credentials: { email: string; password: string }): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/login`, credentials);
   }
-
   // Signup function
 signup(user: { username: string; email: string; password: string; first_name: string; last_name: string }): Observable<any> {
-    return this.http.post<any>(`${this.apiUrl}/signup`, user);
+  console.log(user);  
+  return this.http.post<any>(`${this.apiUrl}/signup`, user);
   }
 
+
+  setUser(user_id:any){
+  this.user_id=user_id;
+  }
 // Get user info from the backend
 getUserProfile(): Observable<any> {
   const token = sessionStorage.getItem(this.tokenKey);
@@ -43,14 +48,50 @@ getUserProfile(): Observable<any> {
   });
 }
 
-
-  // Save token in session storage
-  saveToken(token: string): void {
-    sessionStorage.setItem(this.tokenKey, token);
-    console.log('Token saved successfully:', token);
+  // Save both access and refresh tokens
+  saveTokens(accessToken: string, refreshToken: string): void {
+    sessionStorage.setItem(this.tokenKey, accessToken);
+    sessionStorage.setItem(this.refreshTokenKey, refreshToken);
   }
 
-  // Retrieve token from session storage
+  // Get refresh token from sessionStorage
+  getRefreshToken(): string | null {
+    return sessionStorage.getItem(this.refreshTokenKey);
+  }
+
+  // Refresh access token using refresh token
+  refreshAccessToken(): Observable<any> {
+    const user_id=sessionStorage.getItem('user_id');
+
+    return this.http.post<any>(`${this.apiUrl}/refresh-token`, { user_id });
+  }
+
+  // Check if the access token has expired, and if so, refresh it
+  /*
+  checkAndRefreshToken(): Observable<any> {
+    const token = this.getToken();
+    if (this.isTokenExpired(token)) {
+      return this.refreshAccessToken();
+    }
+    return new Observable();
+  }*/
+
+  // Helper method to check if a token has expired 
+  /*
+  isTokenExpired(token: string | null): boolean {
+    if (!token) return true;
+
+    const decoded = this.decodeToken(token);
+    const currentTime = Math.floor(Date.now() / 1000);
+    return decoded.exp < currentTime;
+  }*/
+
+  // Decode token
+  decodeToken(token: string) {
+    return JSON.parse(atob(token.split('.')[1]));
+  }
+
+  // Get token from session storage
   getToken(): string | null {
     return sessionStorage.getItem(this.tokenKey);
   }

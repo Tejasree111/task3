@@ -12,7 +12,7 @@ const insertUser = async (userData) => {
         throw err;
     }
 };
-
+/*
 const getUserById = async (userId) => {
     try {
         console.log('Fetching user by ID:', {user_id:userId});
@@ -25,7 +25,30 @@ const getUserById = async (userId) => {
         console.error('Error fetching user by ID:', err);
         throw err;
     }
-};
+};*/
+
+const saveRefreshToken = async (userId, refreshToken) => {
+    try {
+      await db('users').where({ user_id: userId }).update({ refresh_token: refreshToken });
+    } catch (err) {
+      console.error('Error saving refresh token:', err);
+      throw err;
+    }
+  };
+  
+  const getUserById = async (userId) => {
+    try {
+      const user = await db('users')
+        .select('*')
+        .where({ user_id: userId })
+        .first();
+      return user;
+    } catch (err) {
+      console.error('Error fetching user by ID:', err);
+      throw err;
+    }
+  };
+  
 
 const getUserByEmail = async (email) => {
     try {
@@ -45,4 +68,5 @@ const getUserByEmail = async (email) => {
     }
 };
 
-module.exports = { insertUser, getUserByEmail,getUserById};
+module.exports = { insertUser, getUserByEmail,getUserById,saveRefreshToken};
+

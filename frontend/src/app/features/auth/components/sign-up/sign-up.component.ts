@@ -45,15 +45,17 @@ export class SignUpComponent implements OnInit {
   
       // Submit the form
       this.authService.signup(formData).subscribe(
-        (response: any) => {
+        {
+        next:(response) => {
           console.log('Signup successful', response);
           this.toastr.success("You've Registered successfully!", 'Success');
           this.router.navigate(['/login']);
         },
-        (error: any) => {
+        error:(error: any) => {
           this.toastr.error("Registration failed. Please try again.", 'Registration Failed');  // Error toastr
           console.error('Signup error', error);
         }
+      }
       );
     } else {
       this.toastr.warning('Please fill in all fields correctly.', 'Validation Error');

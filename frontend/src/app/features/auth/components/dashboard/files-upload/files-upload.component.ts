@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
-import * as XLSX from 'xlsx';
 
 @Component({
   selector: 'app-files-upload',
@@ -69,7 +68,7 @@ export class FilesUploadComponent implements OnInit {
 
   // Handle file drop event
   onDrop(event: DragEvent) {
-    event.preventDefault(); // Prevent the default drop behavior
+    event.preventDefault();
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
       console.log('Dropped files:', files);
@@ -77,7 +76,7 @@ export class FilesUploadComponent implements OnInit {
     }
 
     const dropzone = document.querySelector('.drag-drop-area')!;
-    dropzone.classList.remove('dragover'); // Remove dragover style after drop
+    dropzone.classList.remove('dragover'); 
   }
 
   // Handle file change event
@@ -117,7 +116,7 @@ export class FilesUploadComponent implements OnInit {
     this.previewSrc=url;
     if(this.previewType==='xlsx')
     {
-       const officeViewerBaseUrl = 'https://view.officeapps.live.com/op/view.aspx?src=';
+    const officeViewerBaseUrl = 'https://view.officeapps.live.com/op/embed.aspx?src=';
     const officeUrl=`${officeViewerBaseUrl}${encodeURIComponent(url)}`;
     this.selectedFileUrl=this.santize.bypassSecurityTrustResourceUrl(officeUrl)
     console.log(this.selectedFileUrl);
@@ -141,16 +140,13 @@ export class FilesUploadComponent implements OnInit {
     } else if (ext==='xlsx') {
       return 'xlsx';
     } else if (ext==='xls') {
-      
       return 'xls';
-    }else if (ext==='pdf') {
+    } else if (ext==='pdf') {
       return 'pdf';
     }
     return 'unknown';
   }
-
-
-    downloadAll() {
+   downloadAll() {
       if (this.selectedFiles.length === 1) {
         // If only one file is selected, download it directly
         const selectedFileName = this.selectedFiles[0];

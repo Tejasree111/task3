@@ -21,7 +21,7 @@ export class LoginComponent implements OnInit {
 
   ngOnInit(): void {
   }
-
+/*
   onSubmit(): void {
     if (this.loginForm.valid) {
       this.authService.login(this.loginForm.value).subscribe(
@@ -45,6 +45,31 @@ export class LoginComponent implements OnInit {
       );
     } else {
       this.toastr.warning('Please enter valid login credentials.', 'Warning');
+    }
+  }
+  */
+
+  onSubmit(): void {
+    if (this.loginForm.valid) {
+      this.authService.login(this.loginForm.value).subscribe(
+        (response: any) => {
+          console.log('Login successful, response:', response);
+          
+          if (response?.accessToken) {
+            sessionStorage.setItem('authToken', response.accessToken.accessToken);
+            this.toastr.success("You're signed in successfully!", 'Success');
+            this.router.navigate(['/navbar']).catch((err) =>
+              console.error('Navigation error:', err)
+            );
+          } else {
+            this.toastr.error('Login failed, no access token received.', 'Error');
+          }
+        },
+        (error: any) => {
+          console.error('Login failed', error);
+          this.toastr.error('Login failed, please try again.', 'Error');
+        }
+      );
     }
   }
   

@@ -30,16 +30,16 @@ const getProducts = async (req, res) => {
 */
 const getProducts = async (req, res) => {
   try {
-    const { page = 1, limit = 10, searchTerm = '' } = req.query; // Get pagination parameters and search term
+    const { page = 1, limit = 5, searchTerm = '' } = req.query; // Get pagination parameters and search term
     const offset = (page - 1) * limit;
 
     const [products, total] = await Promise.all([
       productQueries.getAllProducts(parseInt(limit), parseInt(offset), searchTerm),
-      productQueries.getProductCount(), // You may want to modify this to also consider the search term
+      productQueries.getProductCount(), // Get total count of products
     ]);
 
     //console.log("Products: ", products);
-//console.log(total[0]);
+    //console.log(total[0]);
     res.status(200).json({
       products,
       total: total[0].total,
@@ -51,7 +51,6 @@ const getProducts = async (req, res) => {
     res.status(500).json({ message: 'Error retrieving products', error });
   }
 };
-
 const getVendorsAndCategories = async (req, res) => {
   try {
     const [vendors, categories] = await Promise.all([
@@ -73,16 +72,13 @@ const getVendorsAndCategories = async (req, res) => {
 const updateProductStatus = async (req, res) => {
   console.log(req.params);
   const { productId } = req.params;
-  const status = "99"; // Status for soft delete
-
+  const status = "99"; 
   try {
-    // Update the product status to 99
     const result = await knex('products')
       .where('product_id', productId)
       .update({ status });
 
     if (result === 0) {
-      // If no rows were updated, the product doesn't exist
       return res.status(404).json({ message: 'Product not found' });
     }
 
@@ -168,15 +164,7 @@ const updateProduct = async (req, res) => {
 
     // Clear existing product-vendor relationships in the product_to_vendor table
     await knex('product_to_vendor').where('product_id', productId).del();
-
-    // Insert new product-vendor relationships
-    // const productVendorEntries = vendor_ids.map((vendor_id, index) => ({
-    //   product_id: productId,
-    //   vendor_id,
-    //   status: updatedVendorStatuses[index],  // Use the updated vendor status
-    // }));
-
-    // Insert the new relationships into the product_to_vendor table
+    
     const p2v=await knex('product_to_vendor').insert(
       {
       product_id:productId,

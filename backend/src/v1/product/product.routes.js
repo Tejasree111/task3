@@ -13,9 +13,3 @@ router.post('/add', productController.addProduct);
 module.exports = router;
 
 
-
-//backend/scr/v1/product/product.controller.js
-//backend/scr/v1/product/product.queries.js
-//backend/scr/v1/product/product.routes.js
-//backend/scr/v1/routes.js
-//backend/scr/server.js

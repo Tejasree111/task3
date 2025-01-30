@@ -40,7 +40,6 @@
         class="buttons-container d-flex justify-content-between align-items-center"
       >
         <!-- Left-aligned buttons (View All and Cart) -->
-
         <div class="button-group d-flex">
           <div class="btn-group">
             <button class="btn btn-outline-dark me-0" (click)="viewAll()" style="background-color: rgb(170, 166, 166);">
@@ -53,13 +52,23 @@
         </div>
 
         <!-- Right-aligned search and filter -->
-        <div class="search-filter d-flex align-items-center">
-          <input
+        <div *ngIf="isCartView" class="search-filter d-flex align-items-center">
+          <!--<input
             type="text"
             class="form-control me-2"
-            placeholder="Search"
+            placeholder="Search..."
             (input)="searchQuery($event)"
-          />
+          />-->
+          <div class="search-wrapper position-relative">
+            <!-- Input with a search icon inside -->
+            <input
+              type="text"
+              class="form-control me-2"
+              placeholder="Search..."
+              (input)="searchQuery($event)"
+            />
+            <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-2"></i>
+          </div>
           <button *ngIf="isCartView" class="btn btn-outline-dark" (click)="toggleDropdown()">
             <i class="bi bi-filter"></i> Filters
           </button>
@@ -197,6 +206,7 @@
             </select>
             <span *ngIf="!product.isEditing">{{ product.category_name }}</span>
           </td>
+
           <!--
           <td>
             <select
@@ -235,7 +245,7 @@
                 <button
                   *ngFor="let vendor of product.vendors"
                   class="btn"
-                  style=" width: auto; background-color: rgb(224, 224, 224); color: black; padding: 0px 8px ; font-size: 14px;"
+                  style=" width: auto; background-color: rgb(224, 224, 224); color: black; padding: 0px 8px ; font-size: 14px; border-radius: 12px;"
                 >
                   {{ vendor }}
                 </button>
@@ -587,16 +597,17 @@
       aria-hidden="true"
       style="backdrop-filter: blur(0px); background: rgba(77, 76, 76, 0.7)"
     >
-      <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-dialog modal-dialog-centered" >
         <div class="modal-content">
           <!-- Modal Header -->
-          <div class="modal-header">
+          <div class="modal-header" style="background-color: white;">
+            <div>
             <h5 class="modal-title" id="importModalLabel">
               Upload and Attach Files
-            </h5>
+            </h5><br>
             <p class="modal-subtitle text-muted">
               Upload and attach files to this project
-            </p>
+            </p></div>
             <button
               type="button"
               class="btn-close"
@@ -647,11 +658,11 @@
     </div>
 
 <!-- Move to Cart Modal -->
-<div class="modal fade modal-lg" style="max-width: 90%; width: 90%" id="moveToCartModal" tabindex="-1" aria-labelledby="moveToCartModalLabel" aria-hidden="true">
+<div  class="modal fade modal-lg" style="max-width: 90%; width: 90%" id="moveToCartModal" tabindex="-1" aria-labelledby="moveToCartModalLabel" aria-hidden="true">
   <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="moveToCartModalLabel">Move to Cart</h5>
+    <div  class="modal-content">
+      <div style="background-color: white;" class="modal-header">
+        <h5 class="modal-title" id="moveToCartModalLabel" style="font-weight:600;">Move to Cart</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
@@ -705,7 +716,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-        <button type="button" class="btn btn-primary" (click)="moveToCart()">Move to Cart</button>
+        <button type="button" class="btn" style="background-color: rgb(119, 24, 207); color: white;" (click)="moveToCart()">Move to Cart</button>
       </div>
     </div>
   </div>

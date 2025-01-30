@@ -45,7 +45,7 @@ export class InventoryTableComponent implements OnInit {
   totalVendorsCount :number =0;
   totalPages: number = 0;
   currentPage: number = 1;
-  limit: number = 10;
+  limit: number = 5;
   addProductForm: FormGroup;
   //vendors and categories
   //vendors: any[] = [];
@@ -133,12 +133,12 @@ export class InventoryTableComponent implements OnInit {
 console.log("existing products:",existingProduct)
       if (existingProduct) {
         // Increase quantity if the product is already in the cart
-        existingProduct.quantity += 1;
+        existingProduct.quantity += product.quantity_in_stock;
       } else {
         // Add the product to the cart if not already present
         this.cartProducts.push({
           ...product,
-          quantity: 1,
+          quantity: product.quantity_in_stock,
         });
       }
     });
@@ -332,7 +332,7 @@ removeFromCart(index: number): void {
 
 uploadFiles(): void {
   if (this.files.length === 0) {
-    this.toastr.error('Please select files to upload.');
+    //this.toastr.error('Please select files to upload.');
     return;
   }
 
@@ -477,7 +477,6 @@ loadProducts(): void {
   applyFilters(): void {
     this.loadProducts(); // Re-load products with the filters applied
   }
-
   // Download selected products
   downloadSelected(): void {
     // Filter selected records
