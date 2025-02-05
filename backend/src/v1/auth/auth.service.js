@@ -34,9 +34,57 @@ const getUserProfile = async (userId) => {
 
 module.exports = { signup, login, getUserProfile};
 */
+
+const crypto = require('crypto');
+const db = require('../../mysql/connection');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const authQueries = require('./auth.queries');
+
+
+
+// Save the reset token in the database
+const saveResetToken = async (email, resetToken, expirationTime) => {
+  try {
+    await db('users')
+      .where({ email })
+      .update({ reset_token: resetToken, reset_token_expiration: expirationTime });
+  } catch (err) {
+    console.error('Error saving reset token:', err);
+    throw err;
+  }
+};
+
+// Verify the reset token
+const verifyResetToken = async (token) => {
+  try {
+    const user = await db('users')
+      .where('reset_token', token)
+      .andWhere('reset_token_expiration', '>', Date.now())
+      .first();
+
+    if (!user) {
+      return null;  // Token is invalid or expired
+    }
+
+    return user;
+  } catch (err) {
+    console.error('Error verifying reset token:', err);
+    throw err;
+  }
+};
+
+// Update the password in the database
+const updatePassword = async (userId, hashedPassword) => {
+  try {
+    await db('users')
+      .where({ user_id: userId })
+      .update({ password: hashedPassword, reset_token: null, reset_token_expiration: null });
+  } catch (err) {
+    console.error('Error updating password:', err);
+    throw err;
+  }
+};
 
 // Helper function to generate tokens
 const generateTokens = (user) => {
@@ -100,4 +148,4 @@ const refreshAccessToken = async (user_id) => {
   }
 };
 
-module.exports = { signup, login, refreshAccessToken,getUserProfile };
+module.exports = { signup, login, refreshAccessToken,getUserProfile,updatePassword,saveResetToken,verifyResetToken };

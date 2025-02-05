@@ -136,4 +136,12 @@ getUserProfile(): Observable<any> {
   isAuthenticated(): boolean {
     return !!this.getToken();  // If token exists, the user is authenticated
   }
+
+ sendResetPasswordLink(email: string) {
+  return this.http.post(`${this.apiUrl}/forgot-password`, { email });
+}
+
+resetPassword(token: string, newPassword: string ,confirmPassword:string) {
+  return this.http.post(`${this.apiUrl}/reset-password`, { token, newPassword,confirmPassword });
+}
 }

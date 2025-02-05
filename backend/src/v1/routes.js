@@ -13,6 +13,7 @@ router.use('/auth', authRoutes);
 // Protected routes
 router.use('/profile', authenticateUser, profileRoutes);
 router.use('/products', authenticateUser, productRoutes);
+router.use('/uploads',authenticateUser,importRoutes);
 router.use('/upload', authenticateUser, uploadRoutes);
 router.use('/files',authenticateUser,importRoutes);
 

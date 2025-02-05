@@ -48,7 +48,10 @@
             <button class="btn btn-outline-dark" (click)="viewCart()">
               Cart
             </button>
-          </div>
+          </div><!--<button class="button" style="border: none;background-color: white;">
+            <i class="bi bi-x-lg" style="background-color: white; color: brown; font-size: 16px;"></i>
+          </button>-->
+          
         </div>
 
         <!-- Right-aligned search and filter -->
@@ -206,54 +209,29 @@
             </select>
             <span *ngIf="!product.isEditing">{{ product.category_name }}</span>
           </td>
-
-          <!--
-          <td>
-            <select
-              *ngIf="product.isEditing"
-              [(ngModel)]="product.vendors"
-              style="width: 100px;"
-              multiple
-            >
-              <option
-                *ngFor="let vendor of vendors"
-                [value]="vendor.vendor_name"
-              >
-                {{ vendor.vendor_name }}
+        <td>
+          <div *ngIf="product.isEditing">
+            <select [(ngModel)]="product.vendors" style="width: 100px;" multiple>
+              <option *ngFor="let vendor of vendors" [value]="vendor">
+                {{ vendor }}
               </option>
             </select>
-            <span *ngIf="!product.isEditing">{{
-              product.vendors.join(", ")
-            }}</span>
-          </td>-->
-
-          <td>
-            <div *ngIf="product.isEditing">
-              <select
-                [(ngModel)]="product.vendors"
-                style="width: 100px;"
-                multiple
+          </div>
+          <div *ngIf="!product.isEditing">
+            <div class="vendor-buttons" *ngFor="let vendor of product.vendors.split(','); let i = index">
+              <!-- Loop through product.vendors to create a button for each vendor -->
+              <button
+                class="btn"
+                style="width: auto; background-color: rgb(224, 224, 224); color: black; padding: 0px 8px; font-size: 14px; border-radius: 12px; margin-right: 5px;"
+                [ngClass]="getVendorClass(vendor)"
               >
-                <option *ngFor="let vendor of vendors" [value]="vendor.vendor_name">
-                  {{ vendor.vendor_name }}
-                </option>
-              </select>
+                {{ vendor }}
+              </button>
             </div>
-            
-            <div *ngIf="!product.isEditing">
-              <div class="vendor-buttons">
-                <button
-                  *ngFor="let vendor of product.vendors"
-                  class="btn"
-                  style=" width: auto; background-color: rgb(224, 224, 224); color: black; padding: 0px 8px ; font-size: 14px; border-radius: 12px;"
-                >
-                  {{ vendor }}
-                </button>
-              </div>
-            </div>
-          </td>
-          
-
+          </div>
+        </td>
+        
+        
           <td>
             <input
               *ngIf="product.isEditing"
@@ -266,6 +244,7 @@
               product.quantity_in_stock
             }}</span>
           </td>
+          
 
           <td>
             <input
@@ -376,7 +355,7 @@
           </td>
     
           <td>{{ product.category_name }}</td>
-    
+      
           <td>{{ product.vendors.join(', ') }}</td>
     
           <td>
@@ -697,7 +676,7 @@
                 </div>
               </td>
               <td>{{ product.category_name }}</td>
-              <td>{{ product.vendors.join(', ') }}</td>
+              <td>{{ product.vendors }}</td>
               <td>
                 <div class="btn-group">
                   <button class="btn btn-outline-dark" (click)="decreaseQuantityModal(i)">-</button>
@@ -736,7 +715,7 @@
   <!-- Pagination Numbers -->
   <ul class="pagination">
     <!-- Display all pages dynamically based on totalPages -->
-    <li class="page-item" *ngFor="let page of getPages()">
+    <li class="page-item" *ngFor="let page of getPages(currentPage)">
       <button class="page-link" (click)="goToPage(page)" [class.active]="currentPage === page">
         {{ page }}
       </button>
@@ -753,7 +732,8 @@
   </button>
 </div>
 
-
-
   </div>
 </div>
+
+
+

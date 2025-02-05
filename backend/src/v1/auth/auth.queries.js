@@ -12,20 +12,6 @@ const insertUser = async (userData) => {
         throw err;
     }
 };
-/*
-const getUserById = async (userId) => {
-    try {
-        console.log('Fetching user by ID:', {user_id:userId});
-        const user_id=userId;
-        return await db('users')
-            .select('first_name', 'last_name', 'email','username', 'thumbnail')
-            .where("user_id", user_id )
-            .first();
-    } catch (err) {
-        console.error('Error fetching user by ID:', err);
-        throw err;
-    }
-};*/
 
 const saveRefreshToken = async (userId, refreshToken) => {
     try {
@@ -49,7 +35,6 @@ const saveRefreshToken = async (userId, refreshToken) => {
     }
   };
   
-
 const getUserByEmail = async (email) => {
     try {
         console.log('Fetching user by email:', email);
@@ -68,5 +53,38 @@ const getUserByEmail = async (email) => {
     }
 };
 
-module.exports = { insertUser, getUserByEmail,getUserById,saveRefreshToken};
+
+
+// Save reset token and expiration
+const saveResetToken = async (userId, token, expiresAt) => {
+  try {
+    await db('users').where({ user_id: userId }).update({ reset_token: token, reset_token_expires: expiresAt });
+  } catch (err) {
+    console.error('Error saving reset token:', err);
+    throw err;
+  }
+};
+
+// Get user by reset token
+const getUserByResetToken = async (token) => {
+  try {
+    const user = await db('users').where({ reset_token: token }).andWhere('reset_token_expires', '>', new Date()).first();
+    return user;
+  } catch (err) {
+    console.error('Error fetching user by reset token:', err);
+    throw err;
+  }
+};
+
+// Update user password
+const updateUserPassword = async (userId, hashedPassword) => {
+  try {
+    await db('users').where({ user_id: userId }).update({ password: hashedPassword, reset_token: null, reset_token_expires: null });
+  } catch (err) {
+    console.error('Error updating password:', err);
+    throw err;
+  }
+};
+
+module.exports = { insertUser, getUserByEmail,getUserById,saveRefreshToken,saveResetToken,getUserByResetToken,updateUserPassword};
 

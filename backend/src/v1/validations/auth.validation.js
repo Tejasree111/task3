@@ -24,5 +24,16 @@ const signupSchema = Joi.object({
   }),
 });
 
+// Validation schema for Forgot Password
+const forgotPasswordSchema = Joi.object({
+  email: Joi.string().email().required(),
+});
 
-module.exports = { signupSchema};
+// Validation schema for Reset Password
+const resetPasswordSchema = Joi.object({
+  newPassword: Joi.string().min(8).required(),
+  confirmPassword: Joi.string().valid(Joi.ref('newPassword')).required(),
+});
+
+
+module.exports = { signupSchema, forgotPasswordSchema, resetPasswordSchema };

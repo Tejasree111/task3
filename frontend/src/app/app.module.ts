@@ -14,6 +14,9 @@ import { HttpInterceptorService } from './core/interceptors/httpinterceptor';
 import { InventoryTableComponent } from './features/auth/components/dashboard/inventory-table/inventory-table.component';
 import { FilesUploadComponent } from './features/auth/components/dashboard/files-upload/files-upload.component';
 import { EncryptionInterceptor } from './core/interceptors/encryption.interceptor';
+import { NgxPaginationModule } from 'ngx-pagination';
+import { ForgotPasswordComponent } from './features/auth/components/forgot-password/forgot-password.component';
+import { ResetPasswordComponent } from './features/auth/components/reset-password/reset-password.component';
 
 @NgModule({
   declarations: [
@@ -23,8 +26,11 @@ import { EncryptionInterceptor } from './core/interceptors/encryption.intercepto
     NavbarComponent,
     InventoryTableComponent,
     FilesUploadComponent,
+    ForgotPasswordComponent,
+    ResetPasswordComponent,
   ],
   imports: [
+    NgxPaginationModule,
     RouterModule,
     FormsModule,
     BrowserModule,

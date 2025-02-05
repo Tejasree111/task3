@@ -1,6 +1,6 @@
 <div class="container-fluid vh-100 d-flex justify-content-center align-items-center">
     <div class="row w-100 justify-content-center">
-      <!-- Left Side: Form -->
+     
       <div class="col-md-6 d-flex flex-column justify-content-center p-5" style="max-width: 500px;">
         <h1>Log in</h1>
         <h5 class="text-muted">Welcome back! please enter your details.</h5>
@@ -29,6 +29,9 @@
             />
             <div *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched" class="text-danger">
               Password is required (min 8 characters)
+            </div><br>
+            <div class="text-center">
+              <p>Forgot your password? <a routerLink="/forgot-password" class="text-decoration-none">Reset it here</a></p>
             </div>
           </div>
           <button type="submit" class="btn w-100" style="background-color: rgb(106, 9, 170); color:white; font-weight: bold; font-size: 20px;" [disabled]="loginForm.invalid">Sign in</button>
@@ -37,12 +40,14 @@
           <div class="text-center">
             <p>Don't you have an account? <a routerLink="" class="text-decoration-none">Sign up</a></p>
           </div>
+
         </form>
       </div>
-      <!-- Right Side: Image -->
+    
       <div class="col-md-6 d-flex justify-content-center align-items-center p-0">
         <img src="assets/Laptop.webp" alt="log in" class="img-fluid log-in-image" style="width: 600px;"/>
     </div>
     </div>
   </div>
-  
+
+

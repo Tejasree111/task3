@@ -6,6 +6,12 @@ import * as XLSX from 'xlsx';
 import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 
+export interface ImportFiles {
+  import_id: number;
+  file_name: string;
+  status: string;
+}
+
 interface Product {
   id: number;
   product_name: string;
@@ -15,7 +21,7 @@ interface Product {
   unit_price: number;
   status: string;
   //vendors:vendor[];
-  vendors: string[];
+  vendors: string;
   isSelected?: boolean;
   isEditing?:boolean;
 }
@@ -35,11 +41,12 @@ export class InventoryTableComponent implements OnInit {
     quantity_in_stock: number;
     unit_price: number;
     status: string;
-    vendors: string[];
+    vendors: string;
     isSelected?: boolean;
     isEditing?:boolean;
   }[] = [];
   isDragging: boolean = false;
+  ImportFile: ImportFiles[] = [];
   files: File[] = [];
   cartProducts: any[] = [];
   totalVendorsCount :number =0;
@@ -211,7 +218,7 @@ removeFromCart(index: number): void {
         next: (data) => {
           this.vendors = data.vendors;
           this.categories = data.categories;
-          console.log(this.vendors)
+          console.log("vendors :",this.vendors)
           console.log("categories",this.categories);
           this.totalVendorsCount = this.vendors.length;
         },
@@ -330,112 +337,57 @@ removeFromCart(index: number): void {
     }
   }
 
-uploadFiles(): void {
-  if (this.files.length === 0) {
-    //this.toastr.error('Please select files to upload.');
-    return;
-  }
-
-  const formData = new FormData();
-  this.files.forEach((file) => {
-    formData.append('file', file, file.name);
-  });
-
-  // Convert the selected Excel file into JSON before sending it to the server
-  const reader = new FileReader();
-  reader.onload = (e: any) => {
-    const workbook = XLSX.read(e.target.result, { type: 'binary' });
-    const sheetName = workbook.SheetNames[0];  
-    const worksheet = workbook.Sheets[sheetName];
-    const jsonData = XLSX.utils.sheet_to_json(worksheet);
-    console.log(jsonData);
-
-    // Send the JSON data to the backend
-    this.http.post('http://localhost:3000/api/v1/files/import', jsonData).subscribe({
+  uploadFiles(): void {
+    if (!this.files || this.files.length === 0) {
+      //this.toastr.error('Please select files to upload.');
+      return;
+    }
+  
+    const formData = new FormData();
+    
+    this.files.forEach((file) => {
+      formData.append('files', file, file.name); // Ensure 'files' matches backend
+    });
+  
+    console.log('FormData before sending:', formData.getAll('files')); // Debugging log
+  
+    this.http.post('http://localhost:3000/api/v1/files/import', formData).subscribe({
       next: (response: any) => {
-        this.toastr.success('Files uploaded and data imported successfully.');
-        this.loadProducts();  // Refresh the product list
+        this.toastr.success('File uploaded and data imported successfully.');
+        this.loadProducts();
       },
       error: (error) => {
-        console.error('Error uploading files', error);
+        console.error('Error uploading files:', error);
         this.toastr.error('Failed to upload files.');
       }
     });
-  };
-  reader.readAsBinaryString(this.files[0]);  // Read the first file
-}
-
+  }
+  
   importData(): void {
     this.uploadFiles();
   }
-/*
-loadProducts(): void {
-  this.productService.getProducts(this.currentPage, this.limit).subscribe({
-    next: (data) => {
 
-      //const products = sessionStorage.getItem('products');
-    
-      let filteredProducts: Product[] = data.products;
-
-      // Ensure 'vendors' is always an array of strings (in case it's returned as a single string)
-      filteredProducts = filteredProducts.map(product => {
-        if (typeof product.vendors === 'string') {
-          product.vendors = [product.vendors];  // Convert single string to array
-        }
-        return product;
-      });
-
-      this.totalPages = data.totalPages;
-
-      // Apply search filtering
-      if (this.searchTerm) {
-        filteredProducts = filteredProducts.filter(
-          (product) =>
-            product.product_name.toLowerCase().includes(this.searchTerm) ||
-            product.category_name.toLowerCase().includes(this.searchTerm) ||
-            product.vendors.some((vendor: string) => vendor.toLowerCase().includes(this.searchTerm)) // Explicitly type vendor as string
-        );
+  openErrorSheet(importId: number): void {
+    this.http.get(`http://localhost:3000/api/v1/files/error-sheet/${importId}`).subscribe({
+      next: (response: any) => {
+        window.open(response.file_url, '_blank');  // Open the error file in a new tab
+      },
+      error: (error) => {
+        console.error('Error fetching error sheet', error);
       }
+    });
+  }
 
-      // Apply category filter
-      if (this.selectedCategory) {
-        filteredProducts = filteredProducts.filter(
-          (product) => product.category_name === this.selectedCategory
-        );
-      }
-
-      // Apply vendor filter
-      if (this.selectedVendor) {
-        filteredProducts = filteredProducts.filter(
-          (product) => product.vendors.includes(this.selectedVendor)  // vendors is an array now
-        );
-      }
-
-      // Apply status filter
-      if (this.selectedStatus !== '') {
-        filteredProducts = filteredProducts.filter(
-          (product) => product.status === this.selectedStatus
-        );
-      }
-
-      this.products = filteredProducts;
-    },
-    error: (error) => {
-      console.error('Error fetching products:', error);
-    },
-  });
-}*/
 
 loadProducts(): void {
+  
   this.productService.getProducts(this.currentPage, this.limit, this.searchTerm).subscribe({
     next: (data) => {
       let filteredProducts: Product[] = data.products;
+      console.log("load Products ",data.products);
 
       // Ensure 'vendors' is always an array of strings (in case it's returned as a single string)
       filteredProducts = filteredProducts.map(product => {
-        if (typeof product.vendors === 'string') {
-          product.vendors = [product.vendors];  // Convert single string to array
-        }
         return product;
       });
 
@@ -469,6 +421,9 @@ loadProducts(): void {
     },
   });
 }
+
+
+
   searchQuery(event: any) {
 
     this.searchTerm = event.target.value.toLowerCase();
@@ -529,11 +484,29 @@ loadProducts(): void {
 
 
   getVendorClass(vendor: string): string {
-    const vendorClasses = ['vendor-btn-purple', 'vendor-btn-blue', 'vendor-btn-green', 'vendor-btn-orange'];
-    const index = this.vendors.indexOf(vendor);
-    return vendorClasses[index % vendorClasses.length];
+    const vendorColors = [
+      'purple', 
+      'blue', 
+      'green', 
+      'orange', 
+      'red', 
+      'yellow'
+    ];
+    
+    const index = Math.abs(this.hashCode(vendor)) % vendorColors.length;
+    return vendorColors[index];
   }
-
+  
+  // Generate a hash code from the vendor name for consistent color assignment
+  hashCode(str: string): number {
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash = (hash << 5) - hash + str.charCodeAt(i);
+      hash |= 0; // Convert to 32bit integer
+    }
+    return hash;
+  }
+  
   // Select/Deselect all checkboxes
   toggleSelectAll(event: any): void {
     const isChecked = event.target.checked;
@@ -541,15 +514,35 @@ loadProducts(): void {
       product.isSelected = isChecked;
     });
   }
-
-  getPages(): number[] {
-    let pages = [];
-    // Loop from 1 to totalPages to create page buttons dynamically
-    for (let i = 1; i <= this.totalPages; i++) {
-      pages.push(i);
+ 
+    getPages(currentPage: number): number[] {
+      let pages = [1, 2]; // Always show first and second page
+    
+      // If we are on the second page, we also need to show the third page
+      if (currentPage === 2) {
+        pages.push(3);
+      }
+    
+      // Add surrounding pages if we're not on the first few pages or the last page
+      if (currentPage > 2 && currentPage < this.totalPages - 1) {
+        let startPage = Math.max(currentPage - 1, 3); // Start from at least page 3
+        let endPage = Math.min(currentPage + 1, this.totalPages - 1); // End at least two pages before the last page
+    
+        for (let i = startPage; i <= endPage; i++) {
+          if (!pages.includes(i)) {
+            pages.push(i);
+          }
+        }
+      }
+    
+      // Always include the last page if it's not already included
+      if (this.totalPages > 2 && !pages.includes(this.totalPages)) {
+        pages.push(this.totalPages);
+      }
+    
+      return pages;
     }
-    return pages;
-  }
+    
 
   // Check if all products are selected
   isAllSelected(): boolean {

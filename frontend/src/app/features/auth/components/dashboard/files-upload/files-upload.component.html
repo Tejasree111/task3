@@ -3,6 +3,9 @@
   <div class="action-buttons">
     <button class="btn" (click)="downloadAll()">Download All</button>
     <button class="btn" (click)="openModal()">Upload</button>
+   <button class="button me-3" style="border: none; background-color: white;" id="openModalButton">History
+      <i class="bi bi-info-circle" style="background-color: white; color: brown; font-size: 16px;"></i>
+    </button> 
   </div>
   <hr>
 
@@ -90,3 +93,189 @@
     </div>
   </div>
 </div>
+
+<!-- Modal Structure -->
+ <!--
+<div id="uploadModal" class="modal" tabindex="-1" style="display: none;">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">User Uploads</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+       
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Filename</th>
+              <th>Status</th>
+              <th>Error File Path</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="uploadsTableBody">
+           
+          </tbody>
+        </table>
+
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" (click)="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+-->
+
+
+
+<div id="uploadModal" class="modal" tabindex="-1" style="display: none;">
+  <div class="modal-dialog" >
+    <div class="modal-content">
+      <div class="modal-header d-flex justify-content-between" style="background-color: white;">
+        <h5 class="modal-title">User Uploads</h5>
+        <button type="button" data-bs-dismiss="modal" aria-label="Close" (click)="closeModal()" style="border:none; background-color: white;font-weight: 600;color: red;"><i class="bi bi-x-lg"></i></button>
+      </div>
+      <div class="modal-body">
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Filename</th>
+              <th>Status</th>
+              <!--<th>Error File Path</th>-->
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="uploadsTableBody">
+            <!-- Data will be inserted here dynamically -->
+            <tr *ngFor="let upload of uploads">
+              <td>{{ upload.file_name }}</td>
+              <td [ngClass]="{'text-success': upload.status === 'processed', 'text-danger': upload.status !== 'processed'}">
+                {{ upload.status }}
+              </td>
+              <!--<td>{{ upload.error_file_path || 'N/A' }}</td>-->
+              <td><button class="btn btn-primary" (click)="downloadErrorFile(upload)">
+                <i class="bi bi-download"></i>
+              </button></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <!-- Pagination Controls -->
+        <button class="btn btn-secondary" (click)="goToPreviousPage()" [disabled]="currentPage === 1">Previous</button>
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        <button class="btn btn-secondary" (click)="goToNextPage()" [disabled]="currentPage === totalPages">Next</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!--
+<div class="chat-popup" *ngIf="isChatOpen">
+  <div class="chat-header">
+    <button (click)="toggleChat()">Close</button>
+    <span>Chat</span>
+  </div>
+  <div class="chat-body">
+    <div *ngFor="let msg of chatMessages">{{ msg }}</div>
+  </div>
+  <div class="chat-footer">
+    <input [(ngModel)]="currentMessage" placeholder="Type a message" />
+    <button (click)="sendGroupMessage()">Send to Group</button>
+  </div>
+</div>
+
+
+<button (click)="toggleChat()" *ngIf="!isChatOpen" class="trigger-button"><i class="bi bi-messenger"></i></button>
+-->
+<!--
+<div class="chat-popup" *ngIf="isChatOpen">
+  <div class="chat-header d-flex justify-content-between">
+    <span>Chat</span>
+    <button (click)="toggleChat()" style="border: none;"><i class="bi bi-x-lg"></i></button>
+  </div>
+
+
+  <div class="chat-mode">
+    <label>
+      <input type="radio" name="chatMode" value="group" [(ngModel)]="chatMode" />
+      Group Chat
+    </label>
+    <label>
+      <input type="radio" name="chatMode" value="private" [(ngModel)]="chatMode" />
+      Private Chat
+    </label>
+  </div>
+
+
+  <div *ngIf="chatMode === 'private'">
+    <label for="privateUser">Chat with:</label>
+    <select id="privateUser" [(ngModel)]="selectedPrivateUser">
+      <option *ngFor="let user of onlineUsers" [value]="user.userId">
+        {{ user.userId }}
+      </option>
+    </select>
+  </div>
+
+
+  <div class="chat-body">
+    <div *ngFor="let msg of chatMessages">
+      <div [ngClass]="{'private-message': msg.isPrivate, 'group-message': !msg.isPrivate}">
+        {{ msg.sender }}: {{ msg.message }}
+      </div>
+    </div>
+  </div>
+
+
+  <div class="chat-footer">
+    <input [(ngModel)]="currentMessage" style="border-radius: 10px; border: 1px solid blueviolet;" placeholder="Type a message" />
+    
+    <button style="border-radius: 10px; border: 1px solid blueviolet;" *ngIf="chatMode === 'group'" (click)="sendGroupMessage()">Send to Group</button>
+    <button style="border-radius: 10px; border: 1px solid blueviolet;" *ngIf="chatMode === 'private'" (click)="sendPrivateMessage()">Send Private</button>
+  </div>
+</div>
+
+
+<button (click)="toggleChat()" *ngIf="!isChatOpen" class="trigger-button"><i class="bi bi-messenger"></i></button>
+-->
+
+
+
+
+<div class="chat-popup" *ngIf="isChatOpen">
+  <div class="chat-header">
+    <button (click)="toggleChat()">Close</button>
+    <span>Group Chat</span>
+  </div>
+
+  <!-- Room Selection -->
+  <div class="chat-room">
+    <input [(ngModel)]="room" placeholder="Enter room name" />
+    <button (click)="joinRoom()">Join Room</button>
+    <button (click)="leaveRoom()" *ngIf="isInRoom">Leave Room</button>
+  </div>
+
+  <!-- Show users in the room -->
+  <div class="chat-room-users" *ngIf="isInRoom">
+    <strong>Users in Room:</strong>
+    <ul>
+      <li *ngFor="let user of roomUsers">{{ user }}</li>
+    </ul>
+  </div>
+
+  <div class="chat-body">
+    <div *ngFor="let msg of chatMessages">{{ msg }}</div>
+  </div>
+
+  <div class="chat-footer">
+    <input [(ngModel)]="currentMessage" placeholder="Type a message" />
+    <button (click)="sendGroupMessage()" [disabled]="!isInRoom">Send</button>
+  </div>
+</div>
+
+<button (click)="toggleChat()" *ngIf="!isChatOpen" class="trigger-button">
+  <i class="bi bi-messenger"></i>
+</button>
