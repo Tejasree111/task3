@@ -94,9 +94,9 @@ const generateTokens = (user) => {
   return { accessToken, refreshToken };
 };
 
-const signup = async ({ username, password, email, first_name, last_name }) => {
+const signup = async ({ username, password, email, first_name, last_name,role_id,branch_id}) => {
   const hashedPassword = await bcrypt.hash(password, 10);
-  return await authQueries.insertUser({ username, password: hashedPassword, email, first_name, last_name });
+  return await authQueries.insertUser({ username, password: hashedPassword, email, first_name, last_name,role_id,branch_id});
 
 };
 
@@ -118,14 +118,6 @@ const login = async ({ email, password }) => {
 const getUserProfile = async (userId) => {
   console.log(userId);
   return await authQueries.getUserById(userId);
-  console.log(user);
-  return {
-    firstName: user.first_name,
-    lastName: user.last_name,
-    username: user.username,
-    email: user.email,
-    profileImage: user.profile_pic,
-  };
 };
 
 const refreshAccessToken = async (user_id) => {
@@ -141,11 +133,33 @@ const refreshAccessToken = async (user_id) => {
     const accessToken=jwt.sign({ id: user.user_id, username: user.username }, process.env.JWT_SECRET, { expiresIn: '15m' });
 
    // await authQueries.saveRefreshToken(user.user_id, newRefreshToken);
-    console.log(accessToken);
+    //console.log(accessToken);
     return { accessToken: accessToken};
   } catch (err) {
     throw new Error('Invalid or expired refresh token');
   }
 };
 
-module.exports = { signup, login, refreshAccessToken,getUserProfile,updatePassword,saveResetToken,verifyResetToken };
+
+// Fetch role_id by role name (Admin, Manager, User)
+const getRoleByName = async (roleName) => {
+  try {
+    const role = await db('roles').where({ role_name: roleName }).first();
+    return role;
+  } catch (err) {
+    console.error('Error fetching role by name:', err);
+    throw err;
+  }
+};
+const getBranchByName = async (branchName) => {
+  try {
+    const branch = await db('branch').where({ branch_name: branchName }).first();
+    console.log("branch record:",branch);
+    return branch;
+  } catch (err) {
+    console.error('Error fetching branch by name: ', err);
+    throw err;
+  }
+};
+
+module.exports = { signup, login, refreshAccessToken,getUserProfile,updatePassword,saveResetToken,verifyResetToken,getRoleByName,getBranchByName };

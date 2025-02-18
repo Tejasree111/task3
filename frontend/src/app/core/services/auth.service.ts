@@ -24,7 +24,7 @@ login(credentials: { email: string; password: string }): Observable<any> {
     return this.http.post<any>(`${this.apiUrl}/login`, credentials);
   }
   // Signup function
-signup(user: { username: string; email: string; password: string; first_name: string; last_name: string }): Observable<any> {
+signup(user: { username: string; email: string; password: string; first_name: string; last_name: string;role: string;branch:string}): Observable<any> {
   console.log(user);  
   return this.http.post<any>(`${this.apiUrl}/signup`, user);
   }
@@ -40,7 +40,6 @@ getUserProfile(): Observable<any> {
       this.router.navigate(['/login']);
       return new Observable(); // Empty observable
   }
-
   return this.http.get<any>(`${this.apiUrl}/profile`, {
       headers: {
           Authorization: `Bearer ${token}`,
@@ -92,6 +91,7 @@ getUserProfile(): Observable<any> {
   }
 
   // Get token from session storage
+  
   getToken(): string | null {
     return sessionStorage.getItem(this.tokenKey);
   }
@@ -144,4 +144,6 @@ getUserProfile(): Observable<any> {
 resetPassword(token: string, newPassword: string ,confirmPassword:string) {
   return this.http.post(`${this.apiUrl}/reset-password`, { token, newPassword,confirmPassword });
 }
+
+
 }

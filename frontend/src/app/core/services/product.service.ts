@@ -11,9 +11,9 @@ export class ProductService {
 
   constructor(private http: HttpClient,private toastr:ToastrService) {}
 
-    getProducts(page: number, limit: number,searchTerm:string): Observable<any> {
+    getProducts(page: number, limit: number,searchTerm:string,branchId:number): Observable<any> {
       return this.http.get<any>(
-        `${this.apiUrl}/products?page=${page}&limit=${limit}&searchTerm=${searchTerm}`
+        `${this.apiUrl}/products?page=${page}&limit=${limit}&searchTerm=${searchTerm}&branch_id=${branchId}`
       ) .pipe(
         catchError((error: any) => {
           if (error.status === 429) {
@@ -48,4 +48,14 @@ export class ProductService {
       return this.http.put(`http://localhost:3000/api/v1/products/${product.product_id}/status`, { status: product.status });
     }
     
+    getAllUsers(): Observable<any[]> {
+      return this.http.get<any[]>(`${this.apiUrl}/get/all`);
+    }
+    
+    updateUser(userId: number, updatedData: any): Observable<any> {
+      return this.http.put(`${this.apiUrl}/edit/${userId}`, updatedData);
+    }
+    getRoles(): Observable<any[]> {
+      return this.http.get<any[]>(`${this.apiUrl}/role/roles`);
+    }
 }

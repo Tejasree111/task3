@@ -16,6 +16,7 @@ interface UserProfile {
   email: string;
   username: string;
   profileImage: string;
+  role:number;
 }
 
 @Component({
@@ -28,6 +29,9 @@ export class FilesUploadComponent implements OnInit {
   isChatOpen: boolean = false;
   chatMessages: string[] = [];
   currentMessage: string = '';
+  privateMessages: { [key: string]: string[] } = {};  // Store private messages
+  privateChatWith: string = ''; // Track private chat target
+  currentChatType: 'group' | 'private' = 'group'; // Track current chat type
   userId: string = sessionStorage.getItem("user_id") || "";
   room: string = 'defaultRoom'; // Default room for group chat
   isInRoom = false;
@@ -56,6 +60,7 @@ export class FilesUploadComponent implements OnInit {
     email: '',
     username: '',
     profileImage: 'assets/default.jpg', // Fallback image
+    role:0,
   };
   
   constructor(private http: HttpClient, private santize: DomSanitizer,private toastr: ToastrService, private authService:AuthService) {}
@@ -87,37 +92,6 @@ export class FilesUploadComponent implements OnInit {
       this.toastr.error(msg);
     });
 
-    // Register user with socket
-    /*
-    if (userId) {
-      console.log('Registering user with socket:',userId);
-      this.socket.emit('register', userId);
-    }*/
-
-    //this.socket.emit('joinRoom', this.room);
-
-/*
-    // Listen for file processing updates
-    this.socket.on('fileStatusUpdate', (data: any) => {
-      console.log('Received file status update:', data);
-      const fileIndex = this.uploads.findIndex((f) => f.file_name === data.fileName);
-      console.log("uploads :",this.uploads);
-      console.log('File index:', fileIndex);
-      console.log('File:', this.uploads[fileIndex]);
-      if (fileIndex > -1) {
-        this.uploads[fileIndex].status = data.status;
-        if (data.status === 'processed') {
-          console.log(`File ${data.fileName} processed successfully.`);
-          console.log('File processed successfully:', data.fileName);
-          alert(`File ${data.fileName} processed successfully.`);
-        }
-        if (data.status === 'failed') {
-          console.log('File failed:', data.fileName);
-          this.uploads[fileIndex].error_file_path = data.errorFilePath;
-          alert(`File ${data.fileName} failed. Download error file.`);
-        }
-      }
-    });*/
 ///this is workinggggg
     this.socket.on('fileStatusUpdate', (data: any) => {
       console.log('Received file status update:', data);
@@ -129,25 +103,21 @@ export class FilesUploadComponent implements OnInit {
        this.toastr.error(`File ${data.fileName} failed.`);
       }
     });
+
+     // Listen for private messages
+     this.socket.on('privateMessage', (data: any) => {
+      console.log('Received private message:', data);
+      if (!this.privateMessages[data.senderId]) {
+        this.privateMessages[data.senderId] = [];
+      }
+      this.privateMessages[data.senderId].push(`${data.senderId}: ${data.message}`);
+    });
+
      // Listen for incoming group messages
      this.socket.on('groupMessage', (data: any) => {
       console.log('Received group message:', data);
       this.chatMessages.push(`${data.senderId}: ${data.message}`)
     });
-
-    // Listen for private messages
-    /*
-    this.socket.on('privateMessage', (data: any) => {
-      this.chatMessages.push(`${data.senderId}: ${data.message}`);
-    });
-   */
-
-    // Acknowledge message delivery
-    /*
-    this.socket.on('messageDelivered', (data: any) => {
-      console.log(`Message ${data.messageId} delivered`);
-    });*/
-
     this.fetchUploadedFiles();
     const openModalButton = document.getElementById('openModalButton');
     if (openModalButton) {
@@ -175,6 +145,35 @@ export class FilesUploadComponent implements OnInit {
   toggleChat() {
     this.isChatOpen = !this.isChatOpen;
   
+  }
+  toggleChatType(type: 'group' | 'private') {
+    this.currentChatType = type;
+    if (type === 'group') {
+      this.privateChatWith = ''; // Clear private chat when switching to group
+    }
+  }
+
+   // Send a private message
+   sendPrivateMessage() {
+    if (this.privateChatWith.trim() && this.currentMessage.trim()) {
+      this.socket.emit('privateMessage', {
+        receiverId: this.privateChatWith,
+        senderId: this.userId,
+        message: this.currentMessage,
+      });
+      if (!this.privateMessages[this.privateChatWith]) {
+        this.privateMessages[this.privateChatWith] = [];
+      }
+      this.privateMessages[this.privateChatWith].push(`You: ${this.currentMessage}`);
+      this.currentMessage = '';  // Clear message input
+    } else {
+      this.toastr.warning('Please enter a recipient and a message.');
+    }
+  }
+
+  // Toggle private chat with a user
+  startPrivateChat(userId: string) {
+    this.privateChatWith = userId;
   }
 
   // Create or Join a Room
@@ -211,47 +210,6 @@ export class FilesUploadComponent implements OnInit {
       //this.currentMessage = "";
     }
   }
-
-/*
-  // Send a group message
-  sendGroupMessage() {
-    if (this.currentMessage.trim()) {
-      const messageId = Date.now(); // Use timestamp as message ID
-      this.socket.emit('groupMessage', { room: this.room, senderId: this.userProfile.firstName , message: this.currentMessage });
-      this.chatMessages.push(`You: ${this.currentMessage}`);
-      this.currentMessage = '';
-    }
-  }
-
-
-
-  // Send a private message
-  sendPrivateMessage(receiverId: string) {
-    if (this.currentMessage.trim()) {
-      this.socket.emit('privateMessage', { senderId: this.userProfile.firstName, receiverId, message: this.currentMessage });
-      this.chatMessages.push(`You (to ${receiverId}): ${this.currentMessage}`);
-      this.currentMessage = '';
-    }
-  }
-
-  // Join a room (group chat)
-  joinRoom(room: string) {
-    this.socket.emit('joinRoom', room);
-    console.log(`Joined room: ${room}`);
-  }
-
-  // Leave a room
-  leaveRoom(room: string) {
-    this.socket.emit('leaveRoom', room);
-    console.log(`Left room: ${room}`);
-  }
-
-  // Play notification sound for new messages
-  playNotificationSound() {
-    const audio = new Audio('assets/notification.mp3');  // You can replace this with your own sound
-    audio.play();
-  }
-*/
 
   async fetchUploads(page: number): Promise<void> {
     try {
@@ -291,7 +249,6 @@ export class FilesUploadComponent implements OnInit {
       this.fetchUploads(this.currentPage);
     }
   }
-
 
   // Fetch the uploaded files from the backend
   fetchUploadedFiles() {
@@ -350,7 +307,7 @@ export class FilesUploadComponent implements OnInit {
     const files = event.dataTransfer?.files;
     if (files && files.length > 0) {
       console.log('Dropped files:', files);
-      this.selectedFile = files[0]; // If you want to select the first file
+      this.selectedFile = files[0];
     }
 
     const dropzone = document.querySelector('.drag-drop-area')!;
@@ -500,6 +457,7 @@ export class FilesUploadComponent implements OnInit {
         this.userProfile.email = data.email;
         this.userProfile.username = data.username;
         this.userProfile.profileImage = data.profileImage || 'assets/default.jpg';
+        this.userProfile.role = data.role;
         console.log(data);
         this.authService.setUser(data.user_id);
       },

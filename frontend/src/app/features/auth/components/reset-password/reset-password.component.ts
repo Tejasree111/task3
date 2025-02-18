@@ -39,7 +39,6 @@ export class ResetPasswordComponent {
         },
         (error) => {
           console.log("errorrr",error);
-          this.toastr.error('Error resetting password, please try again.', 'Error');
         }
       );
     }

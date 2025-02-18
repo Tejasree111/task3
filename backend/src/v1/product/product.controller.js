@@ -30,27 +30,29 @@ const getProducts = async (req, res) => {
 */
 const getProducts = async (req, res) => {
   try {
-    const { page = 1, limit = 5, searchTerm = '' } = req.query; // Get pagination parameters and search term
+    const { page = 1, limit = 5, searchTerm = '' ,branch_id} = req.query; // Get pagination parameters and search term
     const offset = (page - 1) * limit;
 
     const [products, total] = await Promise.all([
-      productQueries.getAllProducts(parseInt(limit), parseInt(offset), searchTerm),
-      productQueries.getProductCount(), // Get total count of products
+      productQueries.getAllProducts(parseInt(limit), parseInt(offset), searchTerm,branch_id),
+      productQueries.getProductCount(branch_id), // Get total count of products
     ]);
-
     //console.log("Products: ", products);
     //console.log(total[0]);
+    const totalPages = Math.ceil(total[0].total / limit);
     res.status(200).json({
       products,
       total: total[0].total,
       page: parseInt(page),
-      totalPages: Math.ceil(total[0].total / limit),
+      //totalPages: Math.ceil(total[0].total / limit),
+      totalPages
     });
   } catch (error) {
     console.error('Error retrieving products:', error);
     res.status(500).json({ message: 'Error retrieving products', error });
   }
 };
+
 const getVendorsAndCategories = async (req, res) => {
   try {
     const [vendors, categories] = await Promise.all([
@@ -88,62 +90,12 @@ const updateProductStatus = async (req, res) => {
     res.status(500).json({ message: 'Failed to update product status' });
   }
 };
-//add product working code
-/*
+
 const addProduct = async (req, res) => {
-  const {
-    productData,selectedImage
-  } = req.body;
-  
+  const { productData, selectedImage } = req.body;
   const trx = await knex.transaction();
 
   try {
-    // Insert product into the products table
-     const [newProduct] = await trx('products').insert({
-      product_name: productData.productName,
-      category_id: productData.category,
-      quantity_in_stock: productData.quantity,
-      unit_price: productData.unit,
-      product_image: selectedImage==null?'':selectedImage, // Handle null or empty image paths
-      status: productData.status // Default to active if not provided
-    });
-
-    // Now, retrieve the new product_id from the products table
-    const productId = newProduct; // This will hold the inserted product_id.
-
-    // Insert product-to-vendor relation into the product_to_vendor table
-    await trx('product_to_vendor').insert({
-      product_id: productId, // Use the product_id from the newly inserted product
-      vendor_id: productData.vendor,
-      status: '1' // Set as active
-    });
-
-    // Commit the transaction
-    await trx.commit();
-
-    // Return the newly added product with the associated vendor
-    res.status(201).json({
-      product_id: productId, // You can return the product_id
-    });
-
-  } catch (error) {
-    // If any error occurs, rollback the transaction
-    await trx.rollback();
-    console.error('Error adding product:', error);
-    res.status(500).json({ error: 'Failed to add product' });
-  }
-}
-*/
-
-const addProduct = async (req, res) => {
-  const {
-    productData, selectedImage
-  } = req.body;
-
-  const trx = await knex.transaction();
-
-  try {
-    // Step 1: Check if the product already exists in the database
     let existingProduct = await trx('products')
       .where('product_name', productData.productName)
       .first();
@@ -151,71 +103,74 @@ const addProduct = async (req, res) => {
     let productId;
 
     if (existingProduct) {
-      // Product exists, use the existing product_id
       productId = existingProduct.product_id;
-      console.log(`Product ${productData.productName} already exists with ID: ${productId}`);
+      //console.log(`Product ${productData.productName} already exists with ID: ${productId}`);
 
-      // Step 2: Check if the product-to-vendor relationship already exists
+      await trx('products')
+        .where('product_id', productId)
+        .update({
+          quantity_in_stock: existingProduct.quantity_in_stock + productData.quantity, 
+          status: productData.status || existingProduct.status ,
+          branch_id:productData.branch,
+          product_image: selectedImage
+        });
+
+      console.log(`Updated ${productData.productName}: Increased quantity to ${existingProduct.quantity_in_stock + productData.quantity}, Status: ${productData.status || existingProduct.status}`);
       const existingVendorProduct = await trx('product_to_vendor')
         .where('product_id', productId)
         .andWhere('vendor_id', productData.vendor)
         .first();
 
       if (!existingVendorProduct) {
-        // If the vendor-product relationship doesn't exist, insert a new relation
-        console.log(`Inserting new product-to-vendor relation for vendor ID: ${productData.vendor}`);
+        console.log(`Adding new vendor relation for product ${productData.productName}`);
         await trx('product_to_vendor').insert({
           product_id: productId,
           vendor_id: productData.vendor,
-          status: '1' // Set as active
+          status: productData.status || '1'
         });
-      } else {
-        // If the relationship exists, you could optionally update its status here if needed
-        console.log(`Vendor-product relationship already exists for product ${productData.productName}`);
+        console.log(`Inserted new vendor-product relationship for vendor ID: ${productData.vendor}`);
       }
 
     } else {
-      // Product doesn't exist, insert new product and its relationship with the vendor
+      //console.log("Adding new product:", productData);
 
-      // Insert product into the products table
       const [newProductId] = await trx('products').insert({
         product_name: productData.productName,
         category_id: productData.category,
         quantity_in_stock: productData.quantity,
         unit_price: productData.unit,
-        product_image: selectedImage == null ? '' : selectedImage, // Handle null or empty image paths
-        status: productData.status // Default to active if not provided
+        product_image: selectedImage || '', // Handle null or empty image paths
+        status: productData.status || '1', // Default status to active
+        branch_id: productData.branch,
       });
 
       productId = newProductId;
-      console.log(`Inserted new product: ${productData.productName} with ID: ${productId}`);
+      //console.log(`Inserted new product: ${productData.productName} with ID: ${productId}`);
 
-      // Insert product-to-vendor relation into the product_to_vendor table
       await trx('product_to_vendor').insert({
         product_id: productId,
         vendor_id: productData.vendor,
-        status: '1' // Set as active
+        status: productData.status || '1',
       });
-      console.log(`Inserted new vendor-product relationship for vendor ID: ${productData.vendor}`);
+
+      //console.log(`Inserted new vendor-product relationship for vendor ID: ${productData.vendor}`);
     }
 
-    // Commit the transaction
     await trx.commit();
-
-    // Return the newly added or updated product with the associated vendor
     res.status(201).json({
-      product_id: productId, // Return the product_id
+      product_id: productId,
+      message: "Product added or updated successfully."
     });
 
   } catch (error) {
-    // If any error occurs, rollback the transaction
+
     await trx.rollback();
     console.error('Error adding product:', error);
     res.status(500).json({ error: 'Failed to add product' });
   }
 };
 
-
+/*
 const updateProduct = async (req, res) => {
   const { productId } = req.params;
   const { product_name, category_id, quantity_in_stock, unit_price, status, vendors, vendor_statuses } = req.body;
@@ -223,7 +178,7 @@ const updateProduct = async (req, res) => {
   try {
     console.log('Vendors:', vendors);
     const vendorRecords = await knex('vendors').whereIn('vendor_name', vendors);
-
+    
     // Check if all vendors exist, if not return an error
     if (vendorRecords.length !== vendors.length) {
       return res.status(404).json({ message: 'One or more vendors not found' });
@@ -261,8 +216,54 @@ const updateProduct = async (req, res) => {
     res.status(500).json({ message: 'Failed to update product' });
   }
 };
+*/
+const updateProduct = async (req, res) => {
+  const { productId } = req.params;
+  const { product_name, category_id, quantity_in_stock, unit_price, status, vendors, vendor_statuses } = req.body;
 
+  const trx = await knex.transaction();
 
+  try {
+    console.log('Updating Product with Vendors:', vendors);
+    const vendorNames = Array.isArray(vendors) ? vendors : [vendors];
+    const vendorRecords = await trx('vendors').whereIn('vendor_name', vendorNames);
+
+    if (vendorRecords.length !== vendorNames.length) {
+      await trx.rollback();
+      return res.status(404).json({ message: 'One or more vendors not found' });
+    }
+    const updatedProduct = await trx('products')
+      .where('product_id', productId)
+      .update({
+        product_name,
+        category_id,
+        quantity_in_stock,
+        unit_price,
+        status,
+      });
+
+    if (updatedProduct === 0) {
+      await trx.rollback();
+      return res.status(404).json({ message: 'Product not found' });
+    }
+    await trx('product_to_vendor').where('product_id', productId).del();
+    
+    const vendorData = vendorRecords.map((vendor, index) => ({
+      product_id: productId,
+      vendor_id: vendor.vendor_id,
+      status: vendor_statuses ? vendor_statuses[index] || '1' : '1',
+    }));
+
+    await trx('product_to_vendor').insert(vendorData);
+
+    await trx.commit();
+    res.status(200).json({ message: 'Product updated successfully with vendors' });
+  } catch (error) {
+    await trx.rollback();
+    console.error('Error updating product:', error);
+    res.status(500).json({ message: 'Failed to update product' });
+  }
+};
 
 
 module.exports = { getProducts, getVendorsAndCategories, updateProductStatus, addProduct ,updateProduct};

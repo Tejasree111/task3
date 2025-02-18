@@ -1,9 +1,13 @@
 <!-- Navbar Component -->
 <nav class="navbar border-bottom p-1" style="border-radius: 10px; margin: 0 10px;">
   <div class="container-fluid d-flex justify-content-between align-items-center">
-    <a class="navbar-brand fw-bold" href="#">Dashboard</a>
-    <div class="dropdown">
-      <button class="btn d-flex align-items-center" (click)="toggleDropdown()">
+    <a class="navbar-brand fw-bold">Dashboard </a>
+    <div style="background-color: rgb(245, 245, 245); border-radius: 10px;" class="dropdown">
+      <!--
+      <button (click)="chat()">
+        <i class="bi bi-chat-dots"></i>
+      </button>-->
+    <button class="btn d-flex align-items-center" (click)="toggleDropdown()">
         <img
           [src]="userProfile.profileImage || 'assets/default-profile.jpg'"
           alt="Profile"
@@ -13,7 +17,7 @@
           style="object-fit: cover;"
         />
         <div class="text-start">
-          <div class="fw-medium">{{ userProfile.firstName }} {{ userProfile.lastName }}</div>
+          <div class="fw-medium">{{ userProfile.firstName }} {{ userProfile.lastName }} <span [ngClass]="getRoleClass(userProfile.role)">{{ getRoleName(userProfile.role) }}</span></div>
           <div class="text-muted small">{{ userProfile.email }}</div>
         </div>
       </button>
@@ -28,11 +32,73 @@
         <button class="dropdown-item" (click)="logout()">
           <i class="bi bi-box-arrow-right me-2"></i> Logout
         </button>
+        <div *ngIf="userProfile.role === 1" class="dropdown-divider"></div>
+        <button *ngIf="userProfile.role === 1" class="dropdown-item" (click)="toggleUsersTable();toggleDropClose()">
+          <i class="bi bi-person-fill-check me-2"></i> Manage Users
+        </button>
       </div>
     </div>
   </div>
 </nav>
 
+<!-- Users Table -->
+<div *ngIf="showUsersTable" class="container mt-3">
+  <h3>Users List</h3>
+  <table class="table">
+    <thead>
+      <tr>
+        <th>First Name</th>
+        <th>Last Name</th>
+        <th>Email</th>
+        <th>Username</th>
+        <th>Role</th>
+        <th>Action</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let user of users">
+        <td>{{ user.first_name }}</td>
+        <td>{{ user.last_name }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.username }}</td>
+        <td>{{ user.role_name }}</td>
+        <td>
+          <button class="btn btn-sm" style="background-color: rgb(245, 173, 41);" (click)="editUser(user)">
+            <i class="bi bi-pencil-square"></i> Edit
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Edit User Modal -->
+<div class="modal fade" id="editUserModal" tabindex="-1" aria-labelledby="editUserModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="editUserModalLabel">Edit User</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div *ngIf="selectedUser">
+          <input [(ngModel)]="selectedUser.first_name" placeholder="First Name" class="form-control mb-2" />
+          <input [(ngModel)]="selectedUser.last_name" placeholder="Last Name" class="form-control mb-2" />
+          <input [(ngModel)]="selectedUser.email" placeholder="Email" class="form-control mb-2" />
+          
+          <!-- Role Selection Dropdown -->
+          <select [(ngModel)]="selectedUser.role_id" class="form-control mb-2">
+            <option *ngFor="let role of roles" [value]="role.role_id">{{ role.role_name }}</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" style="color: black;" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-success" (click)="saveUser()">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- Modal for Profile Picture -->
 <div

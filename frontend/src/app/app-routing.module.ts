@@ -6,11 +6,14 @@ import { NavbarComponent } from './features/auth/components/dashboard/navbar/nav
 import { ForgotPasswordComponent } from './features/auth/components/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './features/auth/components/reset-password/reset-password.component';
 import { AuthGuard } from './core/guards/auth.guard';
+import { ChatComponent } from './features/auth/components/dashboard/chat/chat.component';
+
 
 const routes: Routes = [
   {path:'',component:SignUpComponent},
   {path:'login',component:LoginComponent},
   {path:'signup',component:SignUpComponent},
+  {path:'navbar/chat',component:ChatComponent},
   {
     path: 'navbar',
     component: NavbarComponent,

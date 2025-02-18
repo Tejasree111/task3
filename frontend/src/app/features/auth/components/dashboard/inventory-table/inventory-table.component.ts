@@ -5,7 +5,22 @@ import { jsPDF } from 'jspdf';
 import * as XLSX from 'xlsx';
 import { ToastrService } from 'ngx-toastr';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-
+import { AuthService } from 'src/app/core/services/auth.service';
+interface Upload {
+  file_name: string;
+  status: string;
+  error_file_path: string;
+  file_path: string; // Added file_path
+}
+interface UserProfile {
+  firstName: string;
+  lastName: string;
+  email: string;
+  username: string;
+  profileImage: string;
+  role:number;
+  branch:number;
+}
 export interface ImportFiles {
   import_id: number;
   file_name: string;
@@ -54,22 +69,19 @@ export class InventoryTableComponent implements OnInit {
   currentPage: number = 1;
   limit: number = 5;
   addProductForm: FormGroup;
-  //vendors and categories
-  //vendors: any[] = [];
   selectedVendors: { [key: string]: boolean } = {};
   categories: any[] = [];
   selectedImage: string | null = null;
   selectedVendorId: number | null = null;
   selectedCategoryId: number | null = null;
   selectedFile: File | null = null;
-  isCartView: boolean = true;
-  //selectedProducts: any|any[];
+  isViewAll:boolean=true;
+  isCartView: boolean = false;
+  isHistory:boolean=false;
   selectedProducts:Product[]=[];
   dropdownVisible: boolean = false;
+  branchId: number = 0;
   
-  
-
-  // Columns filter state
   columnsFilter = {
     product: false,
     category: false, // Whether to filter by category
@@ -81,11 +93,22 @@ export class InventoryTableComponent implements OnInit {
   selectedStatus: string = '';
   searchTerm: string = '';
 
+  userProfile: UserProfile = {
+    firstName: '',
+    lastName: '',
+    email: '',
+    username: '',
+    profileImage: 'assets/default.jpg', // Fallback image
+    role:0,
+    branch:0,
+  };
+
   constructor(
     private productService: ProductService,
     private toastr: ToastrService,
     private http: HttpClient,
-    private fb: FormBuilder
+    private fb: FormBuilder,
+    private authService: AuthService
   ) {
     this.addProductForm = this.fb.group({
       productName: ['', [Validators.required]],
@@ -94,12 +117,14 @@ export class InventoryTableComponent implements OnInit {
       quantity: ['', [Validators.required, Validators.min(1)]],
       unit: ['', [Validators.required]],
       status: ['', [Validators.required]], // default to active
+      branch:['',Validators.required],
       productImage: [''],
     });
   }
 
   ngOnInit(): void {
-    this.loadProducts();
+    this.fetchUserProfile();
+    //this.loadProducts();
     this.loadVendorsAndCategories();
     this.loadCartFromSession();
     //this.clearCartOnPageLoad();
@@ -281,7 +306,7 @@ removeFromCart(index: number): void {
         .subscribe({
           next: (response: any) => {
             this.selectedImage = response.thumbnailUrl;
-            console.log(response.productPicUrl);
+            console.log("productPicUrl :::",response.productPicUrl);
             this.saveProduct(productData, response.productPicUrl);
           },
           error: (error) => console.error('Error uploading image', error),
@@ -380,13 +405,13 @@ removeFromCart(index: number): void {
 
 
 loadProducts(): void {
-  
-  this.productService.getProducts(this.currentPage, this.limit, this.searchTerm).subscribe({
+  //const branchId:number=this.userProfile.branch;
+  console.log("BranchId = ", this.branchId);
+  this.productService.getProducts(this.currentPage, this.limit, this.searchTerm,this.branchId).subscribe({
     next: (data) => {
       let filteredProducts: Product[] = data.products;
       console.log("load Products ",data.products);
 
-      // Ensure 'vendors' is always an array of strings (in case it's returned as a single string)
       filteredProducts = filteredProducts.map(product => {
         return product;
       });
@@ -422,14 +447,12 @@ loadProducts(): void {
   });
 }
 
-
-
-  searchQuery(event: any) {
+searchQuery(event: any) {
 
     this.searchTerm = event.target.value.toLowerCase();
     this.loadProducts();
   }
-  applyFilters(): void {
+applyFilters(): void {
     this.loadProducts(); // Re-load products with the filters applied
   }
   // Download selected products
@@ -482,29 +505,14 @@ loadProducts(): void {
     }
   }
 
-
   getVendorClass(vendor: string): string {
-    const vendorColors = [
-      'purple', 
-      'blue', 
-      'green', 
-      'orange', 
-      'red', 
-      'yellow'
-    ];
-    
-    const index = Math.abs(this.hashCode(vendor)) % vendorColors.length;
-    return vendorColors[index];
-  }
-  
-  // Generate a hash code from the vendor name for consistent color assignment
-  hashCode(str: string): number {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      hash = (hash << 5) - hash + str.charCodeAt(i);
-      hash |= 0; // Convert to 32bit integer
-    }
-    return hash;
+    const vendorClasses: { [key: string]: string } = {
+      'Vendor A': 'vendor-amazon',
+      'Vendor B': 'vendor-walmart',
+      'Vendor C': 'vendor-target',
+      'zepto': 'vendor-bestbuy'
+    };
+    return vendorClasses[vendor] || 'vendor-default';
   }
   
   // Select/Deselect all checkboxes
@@ -516,16 +524,15 @@ loadProducts(): void {
   }
  
     getPages(currentPage: number): number[] {
-      let pages = [1, 2]; // Always show first and second page
+      let pages = [1, 2]; 
     
-      // If we are on the second page, we also need to show the third page
+      
       if (currentPage === 2) {
         pages.push(3);
       }
     
-      // Add surrounding pages if we're not on the first few pages or the last page
       if (currentPage > 2 && currentPage < this.totalPages - 1) {
-        let startPage = Math.max(currentPage - 1, 3); // Start from at least page 3
+        let startPage = Math.max(currentPage - 1, 3); 
         let endPage = Math.min(currentPage + 1, this.totalPages - 1); // End at least two pages before the last page
     
         for (let i = startPage; i <= endPage; i++) {
@@ -539,7 +546,6 @@ loadProducts(): void {
       if (this.totalPages > 2 && !pages.includes(this.totalPages)) {
         pages.push(this.totalPages);
       }
-    
       return pages;
     }
     
@@ -555,12 +561,16 @@ loadProducts(): void {
 
   viewAll() {
     console.log('View All');
-    this.isCartView = true; 
+    this.isViewAll = true;
+    this.isCartView=false;
+    this.isHistory=false;
   }
 
   viewCart() {
     console.log('View Cart');
-    this.isCartView = false;
+    this.isCartView=true;
+    this.isViewAll=false;
+    this.isHistory=false;
   }
 
   openFilters() {
@@ -614,16 +624,109 @@ loadProducts(): void {
     }
     
     savesProduct(product: any) {
+
+      console.log("saving product:"+product);
       // Update product via the service and save changes
       this.productService.updateProduct(product).subscribe(
         (response) => {
-          product.isEditing = false;
+
           this.toastr.success('Product updated successfully');
         },
         (error) => {
           this.toastr.error('Failed to update product');
         }
       );
+      product.isEditing = false;
+
+    }
+    normalizeVendors(product: any): string[] {
+      if (!product || !product.vendors) {
+        return []; // Return an empty array if product or vendors is undefined/null
+      }
+      return Array.isArray(product.vendors) ? product.vendors : product.vendors.split(',');
     }
     
+
+    fetchUserProfile(): void {
+      this.authService.getUserProfile().subscribe(
+        (data) => {
+          sessionStorage.setItem('user_id',data.user_id);
+          this.userProfile.firstName = data.firstName;
+          this.userProfile.lastName = data.lastName;
+          this.userProfile.email = data.email;
+          this.userProfile.username = data.username;
+          this.userProfile.profileImage = data.profileImage || 'assets/default.jpg';
+          this.userProfile.role=data.role;
+          console.log("role:",data.role);
+          this.branchId=data.branch;
+          this.userProfile.branch=data.branch;
+          console.log("user profile",this.userProfile);
+          console.log("dataaaaa:",data);
+          this.authService.setUser(data.user_id);
+          this.loadProducts();
+        },
+        (error) => {
+          console.error('Error fetching user profile:', error);
+        }
+      );
+    }
+
+    viewHistory(){
+      this.isHistory=true;
+      this.isViewAll=false;
+      this.isCartView=false;
+      this.fetchUploads(1);
+    }
+    uploads: Upload[] = [];
+    async fetchUploads(page: number): Promise<void> {
+      try {
+        const response = await this.http
+          .get<{ uploads: Upload[]; totalPages: number }>(
+            `http://localhost:3000/api/v1/uploads/uploads?page=${page}`
+          )
+          .toPromise();
+  
+        this.uploads = response?.uploads || [];
+        this.totalPages = response?.totalPages || 1;
+      } catch (error) {
+        console.error('Error fetching uploads:', error);
+      }
+    }
+    async downloadErrorFile(upload: Upload) {
+      try {
+        if (upload.error_file_path) {
+          const link = document.createElement('a');
+          link.href = upload.error_file_path; // Use the file_path provided in the response
+          link.download = upload.error_file_path; // Download with the original file name
+          link.click();
+        } else {
+          this.toastr.warning('No file path found for this upload.');
+        }
+      } catch (error) {
+        console.error('Error downloading file:', error);
+      }
+    }
+     // Move to the next page
+  goToNextPage(): void {
+    if (this.currentPage < this.totalPages) {
+      this.currentPage++;
+      this.fetchUploads(this.currentPage);
+    }
+  }
+
+  // Move to the previous page
+  goToPreviousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
+      this.fetchUploads(this.currentPage);
+    }
+  }
+
+   // Manually set a page
+   goToUploadPage(page: number): void {
+    if (page >= 1 && page <= this.totalPages) {
+      this.currentPage = page;
+      this.fetchUploads(this.currentPage);
+    }
+  }
 }

@@ -4,20 +4,20 @@
       <!-- Header Section -->
       <div class="header d-flex justify-content-between">
         <h4>Inventory Movements</h4>
-        <div *ngIf="isCartView" class="vendor-count"><button class="vendors-button">Vendors: {{ totalVendorsCount }}</button></div>
+        <div *ngIf="isViewAll && userProfile.role!==3" class="vendor-count"><button class="vendors-button">Vendors: {{ totalVendorsCount }}</button></div>
         <div class="action-buttons">
-          <button *ngIf="isCartView"
+          <button *ngIf="isViewAll"
             class="btn btn-outline-dark"
             (click)="moveToCartModal()"
             data-bs-toggle="modal"
             data-bs-target="#moveToCartModal"
           >
-            Move to Cart
+           <i class="bi bi-cart-check"></i> Move to Cart
           </button>
-          <button *ngIf="isCartView" class="btn btn-outline-dark" (click)="downloadSelected()">
+          <button *ngIf="isViewAll && userProfile.role!==3" class="btn btn-outline-dark" (click)="downloadSelected()">
             <i class="bi bi-download"></i> Download All
           </button>
-          <button *ngIf="isCartView"
+          <button *ngIf="isViewAll && userProfile?.role !== 2 && userProfile?.role !== 3"
             class="btn btn-outline-dark"
             (click)="importData()"
             data-bs-toggle="modal"
@@ -25,13 +25,13 @@
           >
             <i class="bi bi-upload"></i> Import
           </button>
-          <button *ngIf="isCartView"
+          <button *ngIf="isViewAll && userProfile.role!==3"
             class="btn btn-purple"
-            style="background-color: blueviolet; color: white"
+            style="background-color: rgb(155, 17, 197); color: white"
             data-bs-toggle="modal"
             data-bs-target="#addProductModal"
           >
-            <i class="bi bi-plus"></i> Add Products
+            <i class="bi bi-cart-plus"></i> Add Products
           </button>
         </div>
       </div>
@@ -45,25 +45,19 @@
             <button class="btn btn-outline-dark me-0" (click)="viewAll()" style="background-color: rgb(170, 166, 166);">
               View All
             </button>
-            <button class="btn btn-outline-dark" (click)="viewCart()">
+            <button class="btn btn-outline-dark me-0" (click)="viewCart()">
               Cart
             </button>
-          </div><!--<button class="button" style="border: none;background-color: white;">
-            <i class="bi bi-x-lg" style="background-color: white; color: brown; font-size: 16px;"></i>
-          </button>-->
+            <button class="btn btn-outline-dark" (click)="viewHistory()">
+              History
+            </button>
+          </div>
           
         </div>
-
         <!-- Right-aligned search and filter -->
-        <div *ngIf="isCartView" class="search-filter d-flex align-items-center">
-          <!--<input
-            type="text"
-            class="form-control me-2"
-            placeholder="Search..."
-            (input)="searchQuery($event)"
-          />-->
+        <div *ngIf="isViewAll" class="search-filter d-flex align-items-center">
+    
           <div class="search-wrapper position-relative">
-            <!-- Input with a search icon inside -->
             <input
               type="text"
               class="form-control me-2"
@@ -72,7 +66,7 @@
             />
             <i class="bi bi-search position-absolute top-50 start-0 translate-middle-y ms-2"></i>
           </div>
-          <button *ngIf="isCartView" class="btn btn-outline-dark" (click)="toggleDropdown()">
+          <button *ngIf="isViewAll" class="btn btn-outline-dark" (click)="toggleDropdown()">
             <i class="bi bi-filter"></i> Filters
           </button>
 
@@ -124,7 +118,7 @@
       </div>
     </div>
 
-    <table *ngIf="isCartView" class="table">
+    <table *ngIf="isViewAll" class="table">
       <thead>
         <tr>
           <th>
@@ -140,7 +134,7 @@
           <th>Vendors</th>
           <th>Quantity</th>
           <th>Unit</th>
-          <th>Actions</th>
+          <th *ngIf="userProfile.role!==3"></th>
         </tr>
       </thead>
       <tbody>
@@ -212,13 +206,13 @@
         <td>
           <div *ngIf="product.isEditing">
             <select [(ngModel)]="product.vendors" style="width: 100px;" multiple>
-              <option *ngFor="let vendor of vendors" [value]="vendor">
-                {{ vendor }}
+              <option *ngFor="let vendor of vendors" [value]="vendor.vendor_name">
+                {{ vendor.vendor_name }}
               </option>
             </select>
           </div>
           <div *ngIf="!product.isEditing">
-            <div class="vendor-buttons" *ngFor="let vendor of product.vendors.split(','); let i = index">
+            <div class="vendor-buttons" *ngFor="let vendor of normalizeVendors(product); let i = index">
               <!-- Loop through product.vendors to create a button for each vendor -->
               <button
                 class="btn"
@@ -257,7 +251,7 @@
             <span *ngIf="!product.isEditing">{{ product.unit_price }}</span>
           </td>
 
-          <td class="table-buttons-save">
+          <td class="table-buttons-save" *ngIf="userProfile.role!==3">
             <button
               *ngIf="product.isEditing"
               class="btn btn-success"
@@ -279,7 +273,7 @@
             >
               <i class="bi bi-pencil"></i>
             </button>
-            <button
+            <button 
               class="btn"
               data-bs-toggle="modal"
               data-bs-target="#deleteProductModal"
@@ -298,7 +292,7 @@
 
 <!--cart table-->
 
-    <table *ngIf="!isCartView" class="table">
+    <table *ngIf="isCartView" class="table">
       <thead>
         <tr>
           <th>
@@ -312,8 +306,8 @@
           <th>Status</th>
           <th>Category</th>
           <th>Vendors</th>
-          <th>Quantity</th>
-          <th>Actions</th>
+          <th *ngIf="userProfile.role!==3">Quantity</th>
+          <th *ngIf="userProfile.role!==3"></th>
         </tr>
       </thead>
       <tbody>
@@ -356,9 +350,9 @@
     
           <td>{{ product.category_name }}</td>
       
-          <td>{{ product.vendors.join(', ') }}</td>
+          <td>{{ product.vendors }}</td>
     
-          <td>
+          <td >
             <div class="btn-group">
               <button
                 class="btn btn-outline-dark"
@@ -377,7 +371,7 @@
           </td>
     
           <td>
-            <button
+            <button 
               class="btn btn-danger"
               (click)="removeFromCart(i)"
             >
@@ -387,8 +381,44 @@
         </tr>
       </tbody>
     </table>
-    
 
+    <div *ngIf="isHistory" class="uploaded-files-container">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Filename</th>
+            <th>Status</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let upload of uploads">
+            <td>{{ upload.file_name }}</td>
+            <td [ngClass]="{'text-success': upload.status === 'processed', 'text-danger': upload.status !== 'processed'}">
+              {{ upload.status }}
+            </td>
+            <td>
+              <ng-container *ngIf="upload.status !== 'processed'; else processedMessage">
+                <button class="btn btn-primary" (click)="downloadErrorFile(upload)">
+                  <i class="bi bi-download"></i> Download
+                </button>
+              </ng-container>
+              <ng-template #processedMessage>
+                <span class="text-success fw-bold">Your file is processed</span>
+              </ng-template>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    
+      <div class="pagination-controls d-flex justify-content-center">
+        <button class="btn btn-secondary" (click)="goToPreviousPage()" [disabled]="currentPage === 1">Previous</button>
+        <span>Page {{ currentPage }} of {{ totalPages }}</span>
+        <button class="btn btn-secondary" (click)="goToNextPage()" [disabled]="currentPage === totalPages">Next</button>
+      </div>
+    </div>
+    
+    
     <!--add product modal-->
     <div
       class="modal fade"
@@ -447,6 +477,22 @@
                   >
                     {{ vendor.vendor_name }}
                   </option>
+                </select>
+              </div>
+                <!--branch added-->
+              <div class="mb-3">
+                <label for="branch" class="form-label">Branch</label>
+                <select
+                  class="form-select"
+                  id="branch"
+                  formControlName="branch"
+                >
+                <option value="">Select Branch</option>
+                <option value="1">Inda</option>
+                <option value="2">USA</option>
+                <option value="3">Switzerland</option>
+                <option value="4">Singapore</option>
+                <option value="5">Dubai</option>
                 </select>
               </div>
 
@@ -702,7 +748,7 @@
 </div>
 
 
-<div *ngIf="isCartView" class="pagination-container d-flex justify-content-between align-items-center">
+<div *ngIf="isViewAll" class="pagination-container d-flex justify-content-between align-items-center">
   <!-- Previous Button -->
   <button
     class="btn btn-outline-dark"
@@ -734,6 +780,4 @@
 
   </div>
 </div>
-
-
 

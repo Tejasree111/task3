@@ -38,14 +38,13 @@ const saveRefreshToken = async (userId, refreshToken) => {
 const getUserByEmail = async (email) => {
     try {
         console.log('Fetching user by email:', email);
-        // Querying the user from the database by email
         const result = await db('users').where({ email }).first();  
         if (result) {
             console.log('User found:', result);
-            return result;  // Return the user object
+            return result;  
         } else {
             console.log('No user found with that email');
-            return null;  // No user found
+            return null; 
         }
     } catch (err) {
         console.error('Error querying user by email:', err);
@@ -53,9 +52,6 @@ const getUserByEmail = async (email) => {
     }
 };
 
-
-
-// Save reset token and expiration
 const saveResetToken = async (userId, token, expiresAt) => {
   try {
     await db('users').where({ user_id: userId }).update({ reset_token: token, reset_token_expires: expiresAt });
@@ -85,6 +81,7 @@ const updateUserPassword = async (userId, hashedPassword) => {
     throw err;
   }
 };
+
 
 module.exports = { insertUser, getUserByEmail,getUserById,saveRefreshToken,saveResetToken,getUserByResetToken,updateUserPassword};
 

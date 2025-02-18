@@ -29,7 +29,7 @@ const getAllProducts = (limit, offset) => {
     .offset(offset);
 };
 */
-
+/*
 const getAllProducts = (limit, offset, searchTerm) => {
   const query = knex('products')
     .join('categories', 'products.category_id', '=', 'categories.category_id')
@@ -72,6 +72,59 @@ const getAllProducts = (limit, offset, searchTerm) => {
 const getProductCount = () => {
   return knex('products').count('product_id as total').whereNot("status","99");
 };
+*/
+
+const getAllProducts = (limit, offset, searchTerm, branchId) => {
+  const query = knex('products')
+    .join('categories', 'products.category_id', '=', 'categories.category_id')
+    .join('product_to_vendor', 'products.product_id', '=', 'product_to_vendor.product_id')
+    .join('vendors', 'product_to_vendor.vendor_id', '=', 'vendors.vendor_id')
+    .select(
+      'products.product_id',
+      'products.product_name',
+      'categories.category_name',
+      knex.raw('GROUP_CONCAT(vendors.vendor_name) AS vendors'),
+      'products.quantity_in_stock',
+      'products.unit_price',
+      'products.product_image',
+      'products.status'
+    )
+    .whereNot('products.status', "99")
+    .where('products.branch_id',branchId)
+    .groupBy(
+      'products.product_id',
+      'categories.category_name',
+      'products.product_name',
+      'products.quantity_in_stock',
+      'products.unit_price',
+      'products.product_image',
+      'products.status'
+    )
+    .limit(limit)
+    .offset(offset);
+
+  // Apply search filter if searchTerm is provided
+  if (searchTerm) {
+    query.where(function () {
+      this.where('products.product_name', 'like', `%${searchTerm}%`)
+          .orWhere('categories.category_name', 'like', `%${searchTerm}%`)
+          .orWhere('vendors.vendor_name', 'like', `%${searchTerm}%`);
+    });
+  }
+
+  return query;
+};
+
+const getProductCount = (branchId) => {
+  const query = knex('products').count('product_id as total').whereNot("status", "99");
+
+  if (branchId) {
+    query.where("branch_id", branchId);
+  }
+
+  return query;
+};
+
 
 const getAllVendors = () => {
   return knex('vendors').select('vendor_id', 'vendor_name');

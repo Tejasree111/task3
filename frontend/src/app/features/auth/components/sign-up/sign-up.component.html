@@ -1,4 +1,4 @@
-<div class="container-fluid vh-100 d-flex align-items-center">
+<div class="container-fluid d-flex align-items-center">
     <div class="row w-100">
         <!-- Left Side: Form -->
         <div class="col-md-6 d-flex flex-column justify-content-center align-items-center p-5">
@@ -55,6 +55,41 @@
                     />
                     <div *ngIf="signupForm.get('password')?.invalid && signupForm.get('password')?.touched" class="text-danger">
                         Password is required (min 8 characters)
+                    </div>
+                </div>
+                <!-- Role Dropdown -->
+                <div class="mb-3 w-100">
+                    <label for="role" class="form-label">Role*</label>
+                    <select
+                        id="role"
+                        class="form-control"
+                        formControlName="role"
+                    >
+                        <option value="">Select Role</option>
+                        <option value="user">User</option>
+                        <option value="manager">Manager</option>
+                    </select>
+                    <div *ngIf="signupForm.get('role')?.invalid && signupForm.get('role')?.touched" class="text-danger">
+                        Role is required
+                    </div>
+                </div>
+                <!-- Branch Dropdown -->
+                <div class="mb-3 w-100">
+                    <label for="branch" class="form-label">Branch*</label>
+                    <select
+                        id="branch"
+                        class="form-control"
+                        formControlName="branch"
+                    >   
+                        <option value="">Select Branch</option>
+                        <option value="india">India</option>
+                        <option value="usa">USA</option>
+                        <option value="switzerland">Switzerland</option>
+                        <option value="dubai">Dubai</option>
+                        <option value="singapore">Singapore</option>
+                    </select>
+                    <div *ngIf="signupForm.get('branch')?.invalid && signupForm.get('branch')?.touched" class="text-danger">
+                        Branch is required
                     </div>
                 </div>
                 <button type="submit" class="btn w-100" style="background-color: rgb(106, 9, 170); color:white; font-weight: bold; font-size: 16px;" [disabled]="signupForm.invalid">Create Account</button>

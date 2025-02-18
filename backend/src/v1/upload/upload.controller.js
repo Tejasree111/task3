@@ -16,38 +16,6 @@ const uploadToS3 = async (fileBuffer, fileName, mimeType,userId) => {
   return data.Location; // URL of the uploaded file
 };
 
-// Upload file controller
-/*
-const uploadFile = async (req, res) => {
-  const file = req.file;
-  const token = req.headers['authorization'];
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
-  req.user = decoded;
-  const userId = req.user.id;
-
-  if (!file || !userId) return res.status(400).json({ error: 'File or User ID missing' });
-
-  try {
-    const fileName = `${userId}_${Date.now()}_${file.originalname}`;
-    //const fileBuffer = await sharp(file.buffer).resize(800, 800).toBuffer(); 
-     // Handle image files with sharp
-     if (file.mimetype.startsWith('image/')) {
-      fileBuffer = await sharp(file.buffer).resize(800, 800).toBuffer(); 
-    } else if (file.mimetype === 'application/pdf') {
-      // Handle PDF files (just upload the PDF as is)
-      fileBuffer = file.buffer;
-    } else {
-      return res.status(400).json({ error: 'Unsupported file type' });
-    }
-    const fileUrl = await uploadToS3(fileBuffer, fileName, file.mimetype,userId);
-
-    res.status(200).json({ message: 'File uploaded successfully', fileUrl });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error uploading file' });
-  }
-};*/
-
 const uploadFile = async (req, res) => {
   const file = req.file;
   const token = req.headers['authorization'];
@@ -88,26 +56,6 @@ const uploadFile = async (req, res) => {
   }
 };
 
-
-// Fetch uploaded files from S3
-/*const getUploadedFiles = async (req, res) => {
-  const userId = req.user.id;
-  const prefix = `tejasree@AKV0771/`; // Prefix for user-specific folder in S3
-
-  try {
-    const data = await s3.listObjectsV2({ Bucket: process.env.AWS_BUCKET_NAME, Prefix: prefix }).promise();
-    const files = data.Contents.map(file => ({
-      name: file.Key.split('/').pop(), // Extract file name from the key
-      url: `https://${process.env.AWS_BUCKET_NAME}.s3.amazonaws.com/${file.Key}`, // Public URL
-    }));
-
-    res.status(200).json({ files });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error fetching files' });
-  }
-};*/
-
 // Fetch uploaded files for a specific user from S3
 const getUploadedFiles = async (req, res) => {
   const token = req.headers['authorization'];
@@ -135,30 +83,6 @@ const getUploadedFiles = async (req, res) => {
   }
 };
 
-// Handle file downloads as a zip for a specific user
-/*const downloadFiles = async (req, res) => {
-  const { fileNames } = req.body; // Array of selected file names
-  const userId = req.user.id; // Extract userId from JWT token
-  if (!userId) return res.status(400).json({ error: 'User not authenticated' });
-
-  try {
-    const filesToDownload = [];
-      for (const fileName of fileNames) {
-      const fileKey = `tejasree@AKV0771/${userId}/${fileName}`; // Ensure the file is in the user's folder
-      const fileData = await s3.getObject({ Bucket: process.env.AWS_BUCKET_NAME, Key: fileKey }).promise();
-      filesToDownload.push({ name: fileName, data: fileData.Body });
-    }
-
-    const zipBuffer = await zipFiles(filesToDownload); // zip utility function
-    res.set('Content-Type', 'application/zip');
-    res.set('Content-Disposition', 'attachment; filename="files.zip"');
-    res.send(zipBuffer);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Error downloading files' });
-  }
-};*/
-
 const downloadFiles = async (req, res) => {
   const { fileNames } = req.body; // Array of selected file names
   const userId = req.user.id; // Extract userId from JWT token
@@ -176,15 +100,14 @@ const downloadFiles = async (req, res) => {
       return res.send(fileData.Body);
     }
 
-    // If more than one file is selected, zip them
     const filesToDownload = [];
     for (const fileName of fileNames) {
-      const fileKey = `tejasree@AKV0771/${userId}/${fileName}`; // Ensure the file is in the user's folder
+      const fileKey = `tejasree@AKV0771/${userId}/${fileName}`;
       const fileData = await s3.getObject({ Bucket: process.env.AWS_BUCKET_NAME, Key: fileKey }).promise();
       filesToDownload.push({ name: fileName, data: fileData.Body });
     }
 
-    const zipBuffer = await zipFiles(filesToDownload); // zip utility function
+    const zipBuffer = await zipFiles(filesToDownload);
     res.set('Content-Type', 'application/zip');
     res.set('Content-Disposition', 'attachment; filename="files.zip"');
     res.send(zipBuffer);

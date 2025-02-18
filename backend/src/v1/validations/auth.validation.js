@@ -22,6 +22,12 @@ const signupSchema = Joi.object({
   last_name: Joi.string().required().messages({
     'any.required': 'Last name is required',
   }),
+  role: Joi.string().required().messages({
+    'any.required': 'Role is required',
+  }),
+  branch: Joi.string().required().messages({
+    'any.required': 'Branch is required',
+  }),
 });
 
 // Validation schema for Forgot Password

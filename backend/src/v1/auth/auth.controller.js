@@ -81,20 +81,34 @@ const resetPassword = async (req, res) => {
 
 
 const signup = async (req, res) => {
-  const { username, password, email, first_name, last_name } = req.body;
-
+  const { username, password, email, first_name, last_name,role,branch} = req.body;
+  console.log("signup :",req.body);
   // Validate input
-  const { error } = signupSchema.validate({ username, password, email, first_name, last_name });
+  const { error } = signupSchema.validate({ username, password, email, first_name, last_name,role,branch });
   if (error) return res.status(400).json({ errors: error.details.map(detail => detail.message) });
 
   try {
-    const user = await authService.signup({ username, password, email, first_name, last_name });
+    // Get role_id based on the role name (Admin, Manager, User)
+    const roleRecord = await authService.getRoleByName(role);
+    if (!roleRecord) {
+      return res.status(400).json({ message: "Invalid role selected" });
+    }
+    const branchRecord = await authService.getBranchByName(branch);
+    if (!branchRecord) {
+      return res.status(400).json({ message: "Invalid branch selected" });
+    }
+
+
+    // Include the role_id in the user data to be inserted into the database
+    const role_id = roleRecord.role_id;
+    const branch_id=branchRecord.branch_id;
+    //console.log("branch_id",branch_id);
+    const user = await authService.signup({ username, password, email, first_name, last_name,role_id,branch_id });
     res.json({ user });
   } catch (err) {
     res.status(500).send('Error saving user');
   }
 };
-
 const login = async (req, res) => {
   const { email, password } = req.body;
   try {
@@ -106,12 +120,12 @@ const login = async (req, res) => {
 };
 const getProfile = async (req, res) => {
     const token=req.headers["authorization"];
-    console.log("thoekn"+token);
+    //console.log("thoekn"+token);
   try {
     const decoded=jwt.verify(token,process.env.JWT_SECRET)
-    console.log(decoded.id);
+    //console.log(decoded.id);
     const user = await authService.getUserProfile(decoded.id);
-    console.log(user);
+    //console.log("userrr:",user);
     res.json( {
       user_id:user.user_id,
       firstName: user.first_name,
@@ -119,6 +133,8 @@ const getProfile = async (req, res) => {
       username: user.username,
       email: user.email,
       profileImage: user.thumbnail,
+      role: user.role_id,
+      branch: user.branch_id
     });
   } catch (err) {
     res.status(500).send('Error fetching user profile');
@@ -140,4 +156,3 @@ const refreshAccessToken = async (req, res) => {
 };
 
 module.exports = { signup, login, getProfile,refreshAccessToken,forgotPassword,resetPassword };
-

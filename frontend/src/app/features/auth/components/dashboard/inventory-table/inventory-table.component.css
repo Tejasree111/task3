@@ -95,6 +95,10 @@
 
 .table th {
   background-color: #f1f1f1;
+  transition: background-color 0.3s ease-in-out; 
+}
+.table th:hover {
+  background-color: #ffffff; 
 }
 
 .table td button {
@@ -392,4 +396,10 @@ input[type="number"]:disabled {
   top: 50%;
   transform: translateY(-50%); /* Centers the icon vertically */
   color: #888; /* Icon color */
+}
+.vendor-amazon{
+  width: auto; background-color: rgb(116, 50, 50); color: black; padding: 0px 8px; font-size: 14px; border-radius: 12px; margin-right: 5px;
+}
+.vendor-walmart{
+  width: auto; background-color: rgb(116, 50, 50); color: black; padding: 0px 8px; font-size: 14px; border-radius: 12px; margin-right: 5px;
 }

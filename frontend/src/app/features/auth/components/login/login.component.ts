@@ -26,7 +26,6 @@ export class LoginComponent implements OnInit {
       this.authService.login(this.loginForm.value).subscribe(
         (response: any) => {
           console.log('Login successful, response:', response);
-          
           if (response?.accessToken) {
             sessionStorage.setItem('authToken', response.accessToken.accessToken);
             this.toastr.success("You're signed in successfully!", 'Success');

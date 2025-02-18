@@ -17,6 +17,7 @@ import { EncryptionInterceptor } from './core/interceptors/encryption.intercepto
 import { NgxPaginationModule } from 'ngx-pagination';
 import { ForgotPasswordComponent } from './features/auth/components/forgot-password/forgot-password.component';
 import { ResetPasswordComponent } from './features/auth/components/reset-password/reset-password.component';
+import { ChatComponent } from './features/auth/components/dashboard/chat/chat.component';
 
 @NgModule({
   declarations: [
@@ -28,6 +29,7 @@ import { ResetPasswordComponent } from './features/auth/components/reset-passwor
     FilesUploadComponent,
     ForgotPasswordComponent,
     ResetPasswordComponent,
+    ChatComponent,
   ],
   imports: [
     NgxPaginationModule,
@@ -50,8 +52,8 @@ import { ResetPasswordComponent } from './features/auth/components/reset-passwor
   providers: [
     {
       provide: HTTP_INTERCEPTORS,
-      useClass: HttpInterceptorService,
-      multi: true // This ensures multiple interceptors can be used
+      useClass:HttpInterceptorService,
+      multi: true
     },
     {
       provide: HTTP_INTERCEPTORS,

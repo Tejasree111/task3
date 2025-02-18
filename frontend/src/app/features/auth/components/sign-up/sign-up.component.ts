@@ -18,6 +18,8 @@ export class SignUpComponent implements OnInit {
       lastName: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
       password: ['', [Validators.required, Validators.minLength(8),Validators.pattern(/^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d@$!%*?&]{8,}$/),]],
+      role: ['', [Validators.required]],
+      branch: ['', [Validators.required]],
     });
   }
 
@@ -25,7 +27,7 @@ export class SignUpComponent implements OnInit {
 
   onSubmit(): void {
     if (this.signupForm.valid) {
-      const { firstName, lastName, email, password } = this.signupForm.value;
+      const { firstName, lastName, email, password,role,branch} = this.signupForm.value;
   
       // Generate a random number for uniqueness
       const randomNumber = Math.floor(1000 + Math.random() * 9000); // Random 4-digit number
@@ -39,10 +41,10 @@ export class SignUpComponent implements OnInit {
         email,
         first_name: firstName,
         last_name: lastName,
+        role,
+        branch
       };
-  
       console.log('Form Submitted with:', formData);
-  
       // Submit the form
       this.authService.signup(formData).subscribe(
         {
